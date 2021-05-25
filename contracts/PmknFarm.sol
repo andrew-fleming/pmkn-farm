@@ -58,11 +58,11 @@ contract PmknFarm {
     }
 
     function calculateYieldTotal(address user) public view returns(uint256) {
-        uint256 timeStaked = calculateYieldTime(user);
-        uint256 rawYield = stakingBalance[user] * timeStaked;
-        uint256 onePercentPerMin = 6000;
-        uint256 refinedYield = rawYield / onePercentPerMin;
-        return refinedYield;
+        uint256 time = calculateYieldTime(user) * 10**18;
+        uint256 rate = 86400;
+        uint256 timeRate = time / rate;
+        uint256 rawYield = (stakingBalance[msg.sender] * timeRate) / 10**18;
+        return rawYield;
     } 
 
     function withdrawYield() public {

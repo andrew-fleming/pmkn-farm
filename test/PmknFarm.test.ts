@@ -194,31 +194,36 @@ describe("Start from deployment for time increase", () => {
                 .to.be.greaterThan(0)
 
             // Fast-forward time
-            await time.increase(999)
+            await time.increase(86400)
 
             expect(await pmknFarm.calculateYieldTime(alice.address))
-                .to.eq((999))
+                .to.eq((86400))
         })
 
         it("should mint correct token amount in total supply and user", async() => {           
             let time = await pmknFarm.calculateYieldTime(alice.address)
-            let amount = await pmknFarm.stakingBalance(alice.address)
-            let newAmount = ethers.utils.formatEther(amount)
-            let total = Number(newAmount) * time / 6000            
+            let formatTime = time / 86400
+            let staked = await pmknFarm.stakingBalance(alice.address)
+            let bal = staked * formatTime
+            let newBal = ethers.utils.formatEther(bal.toString())
+            expected = Number.parseFloat(newBal).toFixed(3)
 
             await pmknFarm.withdrawYield()
 
             res = await pmknToken.totalSupply()
-            let formatRes = ethers.utils.formatEther(res)
+            let newRes = ethers.utils.formatEther(res)
+            let formatRes = Number.parseFloat(newRes).toFixed(3).toString()
 
-            expect(Number(formatRes))
-                .to.be.approximately(total, .002)
+            expect(expected)
+                .to.eq(formatRes)
 
-            // alice's balance
             res = await pmknToken.balanceOf(alice.address)
-            formatRes = ethers.utils.formatEther(res)
-            expect(Number(formatRes))
-                .to.be.approximately(total, .002)
+            newRes = ethers.utils.formatEther(res)
+            formatRes = Number.parseFloat(newRes).toFixed(3).toString()
+
+            expect(expected)
+                .to.eq(formatRes)
+   
         })
     })
 })
