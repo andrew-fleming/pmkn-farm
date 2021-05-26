@@ -35,7 +35,6 @@ contract PmknFarm {
             "You cannot stake zero tokens");
         if(stakingBalance[msg.sender] > 0){
             pmknBalance[msg.sender] += calculateYieldTotal(msg.sender);
-            stakingBalance[msg.sender] = 0;
         }
         daiToken.transferFrom(msg.sender, address(this), amount);
         stakingBalance[msg.sender] += amount;
@@ -61,7 +60,7 @@ contract PmknFarm {
         uint256 time = calculateYieldTime(user) * 10**18;
         uint256 rate = 86400;
         uint256 timeRate = time / rate;
-        uint256 rawYield = (stakingBalance[msg.sender] * timeRate) / 10**18;
+        uint256 rawYield = (stakingBalance[user] * timeRate) / 10**18;
         return rawYield;
     } 
 
