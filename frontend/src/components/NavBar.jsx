@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { ethers } from "ethers";
 
+import { useUser } from '../context/UserContext'
+import { useContract } from '../context/ContractContext'
+
 const MetaContainer = styled.div`
     height: 6rem;
     width: 100%;
@@ -64,11 +67,20 @@ const Eth = styled.div`
 
  
 
-export default function NavBar(props) {
+export default function NavBar() {
 
-    const address = props.userAddress ? props.userAddress.slice(0, 5) + '...' + props.userAddress.slice(38, 42) : null
-    const network = props.networkId ? props.networkId : "N/A"
-    const balance = props.ethBalance ? Number.parseFloat(ethers.utils.formatEther(props.ethBalance)).toPrecision(3) : "0"
+    const {
+        userAddress,
+        ethBalance
+    } = useUser();
+
+    const {
+        networkId
+    } = useContract();
+
+    const address = userAddress ? userAddress.slice(0, 5) + '...' + userAddress.slice(38, 42) : null
+    const network = networkId ? networkId.charAt(0).toUpperCase() + networkId.slice(1) : "N/A"
+    const balance = ethBalance ? Number.parseFloat(ethers.utils.formatEther(ethBalance)).toPrecision(3) : "0"
 
 
     return(

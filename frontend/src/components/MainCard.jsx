@@ -4,6 +4,8 @@ import styled from "styled-components";
 import StakeBox from "./StakeBox"
 import ClaimBox from "./ClaimBox"
 
+import { useUser } from '../context/UserContext'
+
 const Container = styled.div`
     display: flex;
     justify-content: center;
@@ -40,26 +42,25 @@ const AlignBox = styled.div`
     align-items: center;
 `;
 
-export default function MainCard(props) {
+export default function MainCard() {
 
-    const displayPmkn = props.pmkn ? props.pmkn : "0"
+    const {
+        pmknBalance
+    } = useUser();
+
+    const displayPmkn = pmknBalance ? pmknBalance : "0"
 
     return(
-        <>
         <Container>
             <Card>
                 <CardBanner>
                     PMKN Balance: {displayPmkn}
                 </CardBanner>
                 <AlignBox>
-                    <StakeBox 
-                        daiBalance={props.dai}
-                        stakingBalance={props.stkBalance}
-                    />
+                    <StakeBox />
                     <ClaimBox />
                 </AlignBox>
             </Card>
         </Container>
-        </>
     )
 }

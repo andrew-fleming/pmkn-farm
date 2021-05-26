@@ -3,6 +3,9 @@ import styled from "styled-components";
 import { ethers } from "ethers";
 import MarkDai from "../assets/Mark_Dai.svg";
 
+import { useUser } from '../context/UserContext'
+import { useContract } from '../context/ContractContext'
+
 
 const Container = styled.div`
     height: 15rem;
@@ -25,6 +28,9 @@ const Banner = styled.div`
     width: 100%;
     height: 33%;
     background: linear-gradient(45deg, #ED7014, #6e3003);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 `;
 
 const StakeInput = styled.input`
@@ -46,9 +52,7 @@ const AlignInput = styled.div`
 `;
 
 const TopBanner = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    align-self: center;
     font-size: 1.25rem;
     font-weight: bold;
 `;
@@ -58,7 +62,6 @@ const BottomBanner = styled.div`
     justify-content: space-around;
     font-size: 1rem;
     font-weight: bold;
-    margin-top: .1rem;
 `;
 
 const ClearButton = styled.button`
@@ -83,10 +86,15 @@ const Circle = styled.button`
     align-items: center;
 `;
 
-export default function StakeBox(props) {
+export default function StakeBox() {
 
-    const dai = props.daiBalance ? ethers.utils.formatEther(props.daiBalance) : "0"
-    const stkDai = props.stakingBalance ? ethers.utils.formatEther(props.stakingBalance) : "0"
+    const {
+        daiBalance, 
+        stakingBalance
+    } = useUser();
+
+    const dai = daiBalance ? ethers.utils.formatEther(daiBalance) : "0"
+    const stkDai = stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0"
 
     const bannerText = `Unstaked:`
     const bannerText2 = `Staked:`

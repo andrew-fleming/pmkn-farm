@@ -1,5 +1,8 @@
 import React from "react"
 import styled from "styled-components";
+import { ethers } from "ethers";
+
+import { useUser } from '../context/UserContext'
 
 const Container = styled.div`
     height: 15rem;
@@ -16,7 +19,9 @@ const Banner = styled.div`
     width: 100%;
     height: 33%;
     background: linear-gradient(45deg, #2d1b38, #5f3c74);
-
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 `;
 
 const ClaimButton = styled.button`
@@ -28,27 +33,22 @@ const ClaimButton = styled.button`
 `;
 
 const TopBanner = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    align-self: center;
     font-size: 1.65rem;
     font-weight: bold;
     color: green;
     text-shadow: .03rem .03rem #ED7014;
-    ;
 `;
 
 const BottomBanner = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    align-self: center;
     font-size: 1rem;
     font-weight: bold;
 `;
 
 const Circle = styled.button`
     width: 12rem;
-    height: 3.7rem;
+    height: 4rem;
     border: .05rem dashed #ED7014;
     border-radius: 1rem;
     background-color: transparent;
@@ -59,17 +59,23 @@ const Circle = styled.button`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: .5rem;
 `;
 
-export default function StakeBox(props) {
+export default function StakeBox() {
+
+    const {
+        stakingBalance,
+        pmknYield
+    } = useUser();
+
+    const accruingPmkn = pmknYield ? ethers.utils.formatEther(pmknYield) : "0"
 
     return(
         <Container>
             <Banner>
                 <TopBanner>
                     <div>
-                        789 PMKN
+                        { accruingPmkn } PMKN
                     </div>
                 </TopBanner>
             </Banner>
@@ -84,7 +90,7 @@ export default function StakeBox(props) {
                 <BottomBanner>
 
                     <Circle>
-                            Rate: 123 / day
+                            Rate: { stakingBalance } / day
                     </Circle>
 
                 </BottomBanner>

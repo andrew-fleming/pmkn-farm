@@ -9,6 +9,9 @@ import ERC20 from "../abis/ERC20.json"
 import NavBar from "./NavBar"
 import MainCard from "./MainCard"
 
+import { useUser } from '../context/UserContext'
+import { useContract } from '../context/ContractContext'
+
 const Container = styled.div`
     height: 100%;
     width: 100%;
@@ -17,15 +20,35 @@ const Container = styled.div`
 
 export default function Main() {
 
-    const [userAddress, setUserAddress] = useState('')
-    const [networkId, setNetworkId] = useState('')
-    const [ethBalance, setEthBalance] = useState('')
-    const [daiBalance, setDaiBalance] = useState('')
-    const [pmknBalance, setPmknBalance] = useState('')
-    const [stakingBalance, setStakingBalance] = useState('')
+    /**
+     * @notice Imported user state
+     */
+    const {
+        userAddress, 
+        setUserAddress,
+        ethBalance, 
+        setEthBalance,
+        daiBalance,
+        setDaiBalance,
+        pmknBalance,
+        setPmknBalance,
+        stakingBalance,
+        setStakingBalance,
+        pmknYield, 
+        setPmknYield,
+    } = useUser();
+
+    /**
+     * @notice Imported contract state
+     */
+    const {
+        networkId,
+        setNetworkId,
+        //provider,
+        //setProvider,
+    } = useContract();
 
     const provider = new ethers.providers.Web3Provider(window.ethereum)
-    const signer = provider.getSigner()
     
     const daiAddress = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa"
     const daiContract = new ethers.Contract(daiAddress, ERC20.abi, provider);
@@ -41,9 +64,10 @@ export default function Main() {
      */
 
     const loadUser = useCallback(async() => {
-        let account = await signer.getAddress()
+        let accounts = provider.getSigner()
+        let account = await accounts.getAddress()
         return account
-    }, [signer])
+    }, [provider])
 
     const loadNetwork = useCallback(async() => {
         let netId = await provider.getNetwork()
@@ -67,7 +91,7 @@ export default function Main() {
 
     const loadStakingBalance = useCallback(async(user) => {
         let balance = await pmknFarmContract.stakingBalance(user)
-        setStakingBalance(balance)
+        setStakingBalance(balance.toString())
     }, [setStakingBalance, pmknFarmContract])
 
 
@@ -97,17 +121,9 @@ export default function Main() {
 
     return(
         <>
-        <NavBar 
-            userAddress={userAddress}
-            networkId={networkId}
-            ethBalance={ethBalance}
-            />
+        <NavBar />
         <Container>
-            <MainCard 
-            dai={daiBalance}
-            pmkn={pmknBalance}
-            stkBalance={stakingBalance}
-            />
+            <MainCard />
         </Container>
         </>
     )
