@@ -16,6 +16,7 @@ describe("PmknFarm Contract", () => {
     let bob: SignerWithAddress;
     let carol: SignerWithAddress;
     let dave: SignerWithAddress;
+    let eve: SignerWithAddress;
 
     let pmknFarm: Contract;
     let mockDai: Contract;
@@ -28,7 +29,7 @@ describe("PmknFarm Contract", () => {
         const MockDai = await ethers.getContractFactory("MockDai");
         const PmknToken = await ethers.getContractFactory("PmknToken");
 
-        [owner, alice, bob, carol, dave] = await ethers.getSigners();
+        [owner, alice, bob, carol, dave, eve] = await ethers.getSigners();
 
         mockDai = await MockDai.deploy()
         pmknToken =  await PmknToken.deploy()
@@ -42,7 +43,8 @@ describe("PmknFarm Contract", () => {
             mockDai.mint(alice.address, daiAmount),
             mockDai.mint(bob.address, daiAmount),
             mockDai.mint(carol.address, daiAmount),
-            mockDai.mint(dave.address, daiAmount)
+            mockDai.mint(dave.address, daiAmount),
+            mockDai.mint(eve.address, daiAmount)
         ])
 
         let pmknFarmParams: Array<string> = [
@@ -74,12 +76,6 @@ describe("PmknFarm Contract", () => {
         it("should show mockDai balance", async() => {
             expect(await mockDai.balanceOf(owner.address))
                 .to.eq(daiAmount)
-            expect(await mockDai.balanceOf(alice.address))
-                .to.eq(daiAmount)
-            expect(await mockDai.balanceOf(bob.address))
-                .to.eq(daiAmount)
-            expect(await mockDai.balanceOf(carol.address))
-                .to.eq(daiAmount)
         })
 
     })
@@ -108,6 +104,13 @@ describe("PmknFarm Contract", () => {
                 .to.be.lessThan(Number(daiAmount))
         })
 
+        it("should update balance with multiple stakes", async() => {
+            let toTransfer = ethers.utils.parseEther("100")
+            await mockDai.connect(eve).approve(pmknFarm.address, toTransfer)
+            await pmknFarm.connect(eve).stake(toTransfer)
+            
+        })
+
         it("should revert stake with zero as staked amount", async() => {
             await expect(pmknFarm.connect(bob).stake(0))
                 .to.be.revertedWith("You cannot stake zero tokens")
@@ -134,7 +137,8 @@ describe("PmknFarm Contract", () => {
             expect(Number(res))
                 .to.be.greaterThan(0)
 
-            await pmknFarm.connect(alice).unstake()
+            let toTransfer = ethers.utils.parseEther("100")
+            await pmknFarm.connect(alice).unstake(toTransfer)
 
             res = await pmknFarm.stakingBalance(alice.address)
             expect(Number(res))
@@ -167,7 +171,7 @@ describe("Start from deployment for time increase", () => {
     let pmknFarm: Contract
     let pmknToken: Contract
 
-    before(async() => {
+    beforeEach(async() => {
         // Bare-boned initial deployment setup
         const PmknFarm = await ethers.getContractFactory("PmknFarm");
         const MockDai = await ethers.getContractFactory("MockDai");
@@ -224,6 +228,56 @@ describe("Start from deployment for time increase", () => {
             expect(expected)
                 .to.eq(formatRes)
    
+        })
+
+        it("should update yield balance when unstaked", async() => {
+            let toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+
+            let staked = await pmknFarm.stakingBalance(alice.address)
+
+            await time.increase(86400)
+            await pmknFarm.unstake(ethers.utils.parseEther("5"))
+
+            res = await pmknFarm.pmknBalance(alice.address)
+            expect(Number(ethers.utils.formatEther(res)))
+                .to.be.approximately(10, .001)
+        })
+    })
+
+    describe("Events", async() => {
+        it("should emit Stake", async() => {
+            let toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+
+            await expect(pmknFarm.stake(toTransfer))
+                .to.emit(pmknFarm, 'Stake')
+                .withArgs(alice.address, toTransfer);
+        })
+
+        it("should emit Unstake", async() => {
+            let toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+
+            expect(await pmknFarm.unstake(toTransfer))
+                .to.emit(pmknFarm, "Unstake")
+                .withArgs(alice.address, toTransfer)
+        })
+
+        it("should emit YieldWithdraw", async() => {
+            let toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+            await time.increase(86400)
+            await pmknFarm.unstake(toTransfer)
+
+            res = await pmknFarm.pmknBalance(alice.address)
+
+            expect(await pmknFarm.withdrawYield())
+                .to.emit(pmknFarm, "YieldWithdraw")
+                .withArgs(alice.address, res)
         })
     })
 })
