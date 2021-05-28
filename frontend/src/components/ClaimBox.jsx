@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { ethers } from "ethers";
 
 import { useUser } from '../context/UserContext'
+import { useContract } from '../context/ContractContext'
 
 const Container = styled.div`
     height: 15rem;
@@ -61,31 +62,37 @@ const Circle = styled.button`
     align-items: center;
 `;
 
-export default function StakeBox(props) {
+export default function StakeBox() {
 
     const {
         stakingBalance,
         pmknYield,
         pmknUnrealizedYield,
-        //totalPmknYield
     } = useUser();
 
-    const withdrawYield = async() => {
-        props.withdrawYield()
-    }
+    const {
+        provider,
+        pmknFarmContract
+    } = useContract();
 
+    /**
+     * @notice Calls the withdrawYield function
+     */
+    const withdrawYield = async() => {
+        let signer = provider.getSigner()
+        let tx = await pmknFarmContract.connect(signer).withdrawYield()
+        return tx
+    }
     
     const accruing = pmknYield / 1e18
     const unrealized = pmknUnrealizedYield ? pmknUnrealizedYield / 1e18 : 0
-    const totalYield = parseFloat(accruing + unrealized).toFixed(3)
-    const stakingRate = stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0"    
 
     return(
         <Container>
             <Banner>
                 <TopBanner>
                     <div>
-                        { totalYield } PMKN
+                        { parseFloat(accruing + unrealized).toFixed(3) } PMKN
                     </div>
                 </TopBanner>
             </Banner>
@@ -100,7 +107,7 @@ export default function StakeBox(props) {
                 <BottomBanner>
 
                     <Circle>
-                            Rate: { stakingRate } / day
+                            Rate: { stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0" } / day
                     </Circle>
 
                 </BottomBanner>

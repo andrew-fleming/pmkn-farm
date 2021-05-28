@@ -66,7 +66,6 @@ const Eth = styled.div`
 `;
 
  
-
 export default function NavBar() {
 
     const {
@@ -78,9 +77,6 @@ export default function NavBar() {
         networkId
     } = useContract();
 
-    const address = userAddress ? userAddress.slice(0, 5) + '...' + userAddress.slice(38, 42) : null
-    const network = networkId ? networkId.charAt(0).toUpperCase() + networkId.slice(1) : "N/A"
-    const balance = ethBalance ? Number.parseFloat(ethers.utils.formatEther(ethBalance)).toPrecision(3) : "0"
 
 
     return(
@@ -89,14 +85,14 @@ export default function NavBar() {
                     <Title>Pumpkin Farm</Title>
                     <SubContainer>
                         <Network>
-                            { network }
+                            { networkId ? networkId.charAt(0).toUpperCase() + networkId.slice(1) : "N/A" }
                         </Network>
                         <AccountWrapper>
                             <Eth>
-                                { balance } ETH
+                                { ethBalance ? Number.parseFloat(ethers.utils.formatEther(ethBalance)).toPrecision(3) : "0" } ETH
                                 </Eth>
                             <Account>
-                                { address }
+                                { userAddress ? userAddress.slice(0, 5) + '...' + userAddress.slice(38, 42) : null }
                             </Account>
                     
                         </AccountWrapper>

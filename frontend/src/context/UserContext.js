@@ -15,8 +15,6 @@ export const UserContext = React.createContext({
     setPmknYield: () => {},
     pmknUnrealizedYield: "",
     setPmknUnrealizedYield: () => {},
-    //totalPmknYield: '',
-    //setTotalPmknYield: () => {},
 })
 
 export const UserProvider = UserContext.Provider

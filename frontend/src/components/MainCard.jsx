@@ -43,28 +43,21 @@ const AlignBox = styled.div`
     align-items: center;
 `;
 
-export default function MainCard(props) {
+export default function MainCard() {
 
     const {
         pmknBalance
     } = useUser();
 
-    const displayPmkn = pmknBalance ? Number.parseFloat(ethers.utils.formatEther(pmknBalance)).toFixed(3).toString() : "0"
-
     return(
         <Container>
             <Card>
                 <CardBanner>
-                    PMKN Balance: {displayPmkn}
+                    PMKN Balance: {pmknBalance ? Number.parseFloat(ethers.utils.formatEther(pmknBalance)).toFixed(3).toString() : "0"}
                 </CardBanner>
                 <AlignBox>
-                    <StakeBox 
-                        stake={props.stakeFunc}
-                        unstake={props.unstakeFunc}
-                    />
-                    <ClaimBox 
-                        withdrawYield={props.withdrawYieldFunc}
-                    />
+                    <StakeBox />
+                    <ClaimBox />
                 </AlignBox>
             </Card>
         </Container>

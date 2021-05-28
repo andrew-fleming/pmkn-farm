@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import MarkDai from "../assets/Mark_Dai.svg";
 
 import { useUser } from '../context/UserContext'
-
+import { useContract } from '../context/ContractContext'
 
 const Container = styled.div`
     height: 15rem;
@@ -34,7 +34,7 @@ const Banner = styled.div`
 
 const StakeInput = styled.input`
     height: 3rem;
-    width: 80%;
+    width: 100%;
 `;
 
 const StakeButton = styled.button`
@@ -63,14 +63,6 @@ const BottomBanner = styled.div`
     font-weight: bold;
 `;
 
-const ClearButton = styled.button`
-    width: 19%;
-    height: 3.35rem;
-    background-color: white;
-    border: none;
-    border-bottom: .1rem solid black;
-`;
-
 const Circle = styled.button`
     width: 7rem;
     height: 3.7rem;
@@ -85,32 +77,59 @@ const Circle = styled.button`
     align-items: center;
 `;
 
-export default function StakeBox(props) {
+export default function StakeBox() {
 
     const {
         daiBalance, 
-        stakingBalance
+        stakingBalance,
     } = useUser();
+
+    const {
+        provider,
+        daiContract,
+        pmknFarmContract,
+    } = useContract();
 
     const [ transferAmount, setTransferAmount ] = useState('');
 
-    const stake = async() => {
-        props.stake(transferAmount)
-    }
-
-    const unstake = async() => {
-        props.unstake(transferAmount)
-    }
-
+    /**
+     * @notice Fired when user types in input. Sets transfer amount for stake/unstake functions 
+     */
     const handleTransfer = (event) => {
         setTransferAmount(event.target.value)
     }
 
-    const dai = daiBalance ? ethers.utils.formatEther(daiBalance) : "0"
-    const stkDai = stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0"
+    /**
+     * @notice Calls the stake function
+     */
+    const stake = async() => {
+        try {
+            let signer = provider.getSigner()
+            let amount = ethers.utils.parseEther(transferAmount)
+            let tx = await daiContract.connect(signer).approve(pmknFarmContract.address, amount)
+            provider.waitForTransaction(tx.hash)
+            .then(async() => {
+                tx = await pmknFarmContract.connect(signer).stake(amount)
+            })
+            return tx
+        } catch (error) {
+            alert(error)
+        }
+    }
 
-    const bannerText = `Unstaked:`
-    const bannerText2 = `Staked:`
+    /**
+     * @notice Calls the unstake function
+     */
+    const unstake = async() => {
+        try {
+            let signer = provider.getSigner()
+            let amount = ethers.utils.parseEther(transferAmount)
+            let tx = await pmknFarmContract.connect(signer).unstake(amount)
+            return tx
+        } catch (error) {
+            alert(error)
+        }
+    }
 
     return(
         <Container>
@@ -125,9 +144,6 @@ export default function StakeBox(props) {
                     onChange={handleTransfer} 
                     placeholder="Input Amount"
                 />
-                <ClearButton>
-                    clear
-                </ClearButton>
             </AlignInput>
             <div>
                 <StakeButton onClick={stake}>
@@ -139,20 +155,18 @@ export default function StakeBox(props) {
             </div>
             <Banner>
                 <BottomBanner>
-                   
-
                 </BottomBanner>
                 <BottomBanner>
                     <Circle>
-                        { bannerText }
+                        Unstaked:
                         <div>
-                            { dai }
+                            { daiBalance ? ethers.utils.formatEther(daiBalance) : "0" }
                         </div>
                     </Circle>
                     <Circle>
-                        { bannerText2 }
+                        Staked:
                         <div>
-                            { stkDai }
+                            { stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0" }
                         </div>
                     </Circle>
                 </BottomBanner>

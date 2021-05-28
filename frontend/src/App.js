@@ -22,7 +22,6 @@ function App() {
   const [stakingBalance, setStakingBalance] = useState('')
   const [pmknYield, setPmknYield] = useState('')
   const [pmknUnrealizedYield, setPmknUnrealizedYield] = useState('')
-  //const [totalPmknYield, setTotalPmknYield] = useState('')
 
   const userState = {
     userAddress, 
@@ -39,24 +38,31 @@ function App() {
     setPmknYield,
     pmknUnrealizedYield,
     setPmknUnrealizedYield,
-    //totalPmknYield,
-    //setTotalPmknYield
   }
 
   /**
    * @notice Contract state
    */
+  const [init, setInit] = useState(false)
   const [networkId, setNetworkId] = useState('')
-  //const [provider, setProvider] = useState({})
-  const [daiContractBalance, setDaiContractBalance] = useState('')
+  const [provider, setProvider] = useState({})
+  const [daiContract, setDaiContract] = useState({})
+  const [pmknTokenContract, setPmknTokenContract] = useState({})
+  const [pmknFarmContract, setPmknFarmContract] = useState({})
 
   const contractState = {
+    init,
+    setInit,
     networkId,
     setNetworkId,
-    //provider,
-    //setProvider,
-    daiContractBalance,
-    setDaiContractBalance,
+    provider,
+    setProvider,
+    daiContract,
+    setDaiContract,
+    pmknTokenContract,
+    setPmknTokenContract,
+    pmknFarmContract,
+    setPmknFarmContract,
   }
 
 

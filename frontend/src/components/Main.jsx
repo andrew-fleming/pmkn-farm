@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, useState } from "react"
+import React, { useEffect, useCallback } from "react"
 import styled from "styled-components";
 import { ethers } from "ethers"
 
@@ -29,6 +29,7 @@ export default function Main() {
         setEthBalance,
         setDaiBalance,
         setPmknBalance,
+        stakingBalance,
         setStakingBalance,
         setPmknYield,
         setPmknUnrealizedYield,
@@ -38,30 +39,71 @@ export default function Main() {
      * @notice Imported contract state
      */
     const {
+        init, 
+        setInit,
         setNetworkId,
-        //provider,
-        //setProvider,
+        provider,
+        setProvider,
+        daiContract,
+        setDaiContract,
+        pmknTokenContract,
+        setPmknTokenContract,
+        pmknFarmContract,
+        setPmknFarmContract,
     } = useContract();
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
-    
-    const daiAddress = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa"
-    const daiContract = new ethers.Contract(daiAddress, ERC20.abi, provider);
-
-    const pmknFarmAddress = "0xDf654E5BbaD6d7C5143a4Cae2e700a8996f8FBDE"
-    const pmknFarmContract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, provider)
-
-    const pmknTokenAddress = "0xbD307D0f73253FC670082a97cCA68582f3406a13"
-    const pmknTokenContract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, provider)
-    
     /**
-     * @notice Getters
+     * @notice componentDidMount functions
      */
 
-     //const loadProvider = async() => {
-     //    let prov = new ethers.providers.Web3Provider(window.ethereum)
-     //    setProvider(prov)
-     //}
+    const loadProvider = useCallback(async() => {
+        let prov = new ethers.providers.Web3Provider(window.ethereum)
+        setProvider(prov)
+        return prov
+    }, [setProvider])
+
+    const loadDaiContract = useCallback(async(_provider) => {
+        let daiAddress = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa"  // Kovan DAI
+        let contract = new ethers.Contract(daiAddress, ERC20.abi, _provider)
+        setDaiContract(contract)
+    }, [setDaiContract])
+
+    const loadPmknToken = useCallback(async(_provider) => {
+        let pmknTokenAddress = "<INSERT_PMKN_TOKEN_ADDRESS_HERE>" 
+        let contract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, _provider)
+        setPmknTokenContract(contract)
+    }, [setPmknTokenContract])
+
+    const loadPmknFarmContract = useCallback(async(_provider) => {
+        let pmknFarmAddress = "<INSERT_PMKN_FARM_ADDRESS_HERE>"
+        let contract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, _provider)
+        setPmknFarmContract(contract)
+    }, [setPmknFarmContract])
+
+    const componentDidMount = useCallback(async() => {
+        await loadProvider().then(async(res) => {
+            await loadDaiContract(res)
+            await loadPmknToken(res)
+            await loadPmknFarmContract(res)
+        })
+        setInit(true)
+    }, [
+        loadProvider, 
+        loadDaiContract, 
+        loadPmknToken, 
+        loadPmknFarmContract, 
+        setInit
+    ])
+
+    useEffect(() => {
+        if(init === false){
+            componentDidMount()
+        }
+    }, [componentDidMount, daiContract, init])
+    
+    /**
+     * @notice UserDidMount functions
+     */
 
     const loadUser = useCallback(async() => {
         let accounts = provider.getSigner()
@@ -105,9 +147,7 @@ export default function Main() {
     }, [setPmknUnrealizedYield, pmknFarmContract])
 
 
-
-
-    const componentDidMount = useCallback(async() => {
+    const userDidMount = useCallback(async() => {
         await loadUser().then(res => {
             setUserAddress(res)
             loadEthBalance(res)
@@ -127,51 +167,62 @@ export default function Main() {
         loadStakingBalance,
         setUserAddress,
         loadPmknYield,
+        loadPmknUnrealizedYield
     ])
 
     useEffect(() => {
-        if(userAddress === ''){
-            componentDidMount()
+        if(userAddress === '' && init === true){
+            userDidMount()
         }
-    }, [componentDidMount, userAddress])
+    }, [userDidMount, init, userAddress])
 
+   /**
+    * @notice Events ----------------------------------------->
+    */
 
-    /**
-     * @notice Contract write methods
-     */
-    const stake = async(_amount) => {
-        let signer = provider.getSigner()
-        let amount = ethers.utils.parseEther(_amount)
-        let tx = await daiContract.connect(signer).approve(pmknFarmAddress, amount)
-        provider.waitForTransaction(tx.hash)
-        .then(async() => {
-            tx = await pmknFarmContract.connect(signer).stake(amount)
-        })
-        return tx
-    }
+    useEffect(() => {
+        if(userAddress !== ''){
+            pmknFarmContract.on("Stake", async(userAddress) => {
+                loadDaiBalance(userAddress)
+                loadStakingBalance(userAddress)
+            });
 
-    const unstake = async(_amount) => {
-        let signer = provider.getSigner()
-        let amount = ethers.utils.parseEther(_amount)
-        let tx = await pmknFarmContract.connect(signer).unstake(amount)
-        return tx
-    }
+            pmknFarmContract.on("Unstake", async(userAddress) => {
+                loadDaiBalance(userAddress)
+                loadStakingBalance(userAddress)
+            })
 
-    const withdrawYield = async() => {
-        let signer = provider.getSigner()
-        let tx = await pmknFarmContract.connect(signer).withdrawYield()
-        return tx
-    }
+            pmknFarmContract.on("YieldWithdraw", async(userAddress) => {
+                loadPmknUnrealizedYield(userAddress)
+                loadPmknYield(userAddress)
+                loadPmknBalance(userAddress)
+            })
+        }
+
+        if(stakingBalance > 0){
+            let interval = null
+            interval = setInterval(() => {
+                loadPmknYield(userAddress)
+            }, 20000)
+        return () => clearInterval(interval)
+        }
+
+    }, [
+        pmknFarmContract, 
+        userAddress, 
+        stakingBalance,
+        loadDaiBalance, 
+        loadStakingBalance,
+        loadPmknUnrealizedYield,
+        loadPmknYield,
+        loadPmknBalance
+    ])
 
     return(
         <>
         <NavBar />
         <Container>
-            <MainCard 
-            stakeFunc={stake}
-            unstakeFunc={unstake}
-            withdrawYieldFunc={withdrawYield}
-            />
+            <MainCard />
         </Container>
         </>
     )
