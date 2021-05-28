@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "hardhat/console.sol";
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PmknToken.sol";
 
@@ -33,9 +31,9 @@ contract PmknFarm {
 
     PmknToken public pmknToken;
 
-    event Stake(address from, uint256 amount);
-    event Unstake(address from, uint256 amount);
-    event YieldWithdraw(address to, uint256 amount);
+    event Stake(address indexed from, uint256 amount);
+    event Unstake(address indexed from, uint256 amount);
+    event YieldWithdraw(address indexed to, uint256 amount);
 
     constructor(
         IERC20 _daiToken,
@@ -53,9 +51,6 @@ contract PmknFarm {
             amount > 0 &&
             daiToken.balanceOf(msg.sender) >= amount, 
             "You cannot stake zero tokens");
-        //if(stakingBalance[msg.sender] > 0){
-        //    pmknYield[msg.sender] += calculateYieldTotal(msg.sender);
-        //}
         daiToken.transferFrom(msg.sender, address(this), amount);
         stakingBalance[msg.sender] += amount;
         startTime[msg.sender] = block.timestamp;
@@ -63,8 +58,9 @@ contract PmknFarm {
         emit Stake(msg.sender, amount);
     }
 
-    /// @notice
-    /// @dev
+    /// @notice Retrieves funds locked in contract and sends them back to user
+    /// @dev The toTransfer variable transfers accrued yield from pmknYield to pmknBalance
+    ///      in order to save the user's unrealized yield
     /// @param amount The quantity of DAI the user wishes to receive
     function unstake(uint256 amount) public {
         require(
@@ -82,8 +78,8 @@ contract PmknFarm {
         emit Unstake(msg.sender, amount);
     }
 
-    /// @notice
-    /// @dev
+    /// @notice Helper function for determining how long the user staked
+    /// @dev Kept visibility public for testing
     /// @param user The user
     function calculateYieldTime(address user) public view returns(uint256){
         uint256 end = block.timestamp;
@@ -91,8 +87,9 @@ contract PmknFarm {
         return totalTime;
     }
 
-    /// @notice
-    /// @dev
+    /// @notice Calculates the user's yield while using a 86400 second rate (for 100% returns in 24 hours)
+    /// @dev Solidity does not compute fractions or decimals; therefore, time is multiplied by 10e18
+    ///      before it's divided by the rate. rawYield thereafter divides the product back by 10e18
     /// @param user The user
     function calculateYieldTotal(address user) public view returns(uint256) {
         uint256 time = calculateYieldTime(user) * 10**18;
@@ -102,8 +99,9 @@ contract PmknFarm {
         return rawYield;
     } 
 
-    /// @notice
-    /// @dev
+    /// @notice Transfers accrued PMKN yield to the user
+    /// @dev The if conditional statement checks for a stored PMKN balance. If it exists, the
+    ///      the accrued yield is added to the accruing yield before the PMKN mint function is called
     function withdrawYield() public {
         require(
             pmknYield[msg.sender] > 0 || 
