@@ -15,6 +15,10 @@ async function main() {
     const PmknFarm = await ethers.getContractFactory("PmknFarm");
     const pmknFarm = await PmknFarm.deploy(...mainConfig, pmknToken.address)
     console.log(`PmknFarm address: ${pmknFarm.address}`)
+
+    await pmknToken._transferOwnership(pmknFarm.address)
+    console.log(`PmknToken ownership transferred to: ${pmknFarm.address}`)
+
 }
 
 main()
