@@ -1,10 +1,9 @@
-import React from "react"
+import React, { useState } from "react"
 import styled from "styled-components";
 import { ethers } from "ethers";
 import MarkDai from "../assets/Mark_Dai.svg";
 
 import { useUser } from '../context/UserContext'
-import { useContract } from '../context/ContractContext'
 
 
 const Container = styled.div`
@@ -86,12 +85,26 @@ const Circle = styled.button`
     align-items: center;
 `;
 
-export default function StakeBox() {
+export default function StakeBox(props) {
 
     const {
         daiBalance, 
         stakingBalance
     } = useUser();
+
+    const [ transferAmount, setTransferAmount ] = useState('');
+
+    const stake = async() => {
+        props.stake(transferAmount)
+    }
+
+    const unstake = async() => {
+        props.unstake(transferAmount)
+    }
+
+    const handleTransfer = (event) => {
+        setTransferAmount(event.target.value)
+    }
 
     const dai = daiBalance ? ethers.utils.formatEther(daiBalance) : "0"
     const stkDai = stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0"
@@ -108,16 +121,19 @@ export default function StakeBox() {
                 </TopBanner>
             </Banner>
             <AlignInput>
-                <StakeInput placeholder="Input Amount"/>
+                <StakeInput 
+                    onChange={handleTransfer} 
+                    placeholder="Input Amount"
+                />
                 <ClearButton>
                     clear
                 </ClearButton>
             </AlignInput>
             <div>
-                <StakeButton>
+                <StakeButton onClick={stake}>
                     Stake
                 </StakeButton>
-                <StakeButton>
+                <StakeButton onClick={unstake}>
                     Unstake
                 </StakeButton>
             </div>

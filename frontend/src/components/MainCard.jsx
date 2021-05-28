@@ -1,5 +1,6 @@
 import React from "react"
 import styled from "styled-components";
+import { ethers } from "ethers";
 
 import StakeBox from "./StakeBox"
 import ClaimBox from "./ClaimBox"
@@ -42,13 +43,13 @@ const AlignBox = styled.div`
     align-items: center;
 `;
 
-export default function MainCard() {
+export default function MainCard(props) {
 
     const {
         pmknBalance
     } = useUser();
 
-    const displayPmkn = pmknBalance ? pmknBalance : "0"
+    const displayPmkn = pmknBalance ? Number.parseFloat(ethers.utils.formatEther(pmknBalance)).toFixed(3).toString() : "0"
 
     return(
         <Container>
@@ -57,8 +58,13 @@ export default function MainCard() {
                     PMKN Balance: {displayPmkn}
                 </CardBanner>
                 <AlignBox>
-                    <StakeBox />
-                    <ClaimBox />
+                    <StakeBox 
+                        stake={props.stakeFunc}
+                        unstake={props.unstakeFunc}
+                    />
+                    <ClaimBox 
+                        withdrawYield={props.withdrawYieldFunc}
+                    />
                 </AlignBox>
             </Card>
         </Container>

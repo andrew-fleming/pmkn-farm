@@ -61,27 +61,37 @@ const Circle = styled.button`
     align-items: center;
 `;
 
-export default function StakeBox() {
+export default function StakeBox(props) {
 
     const {
         stakingBalance,
-        pmknYield
+        pmknYield,
+        pmknUnrealizedYield,
+        //totalPmknYield
     } = useUser();
 
-    const accruingPmkn = pmknYield ? ethers.utils.formatEther(pmknYield) : "0"
+    const withdrawYield = async() => {
+        props.withdrawYield()
+    }
+
+    
+    const accruing = pmknYield / 1e18
+    const unrealized = pmknUnrealizedYield ? pmknUnrealizedYield / 1e18 : 0
+    const totalYield = parseFloat(accruing + unrealized).toFixed(3)
+    const stakingRate = stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0"    
 
     return(
         <Container>
             <Banner>
                 <TopBanner>
                     <div>
-                        { accruingPmkn } PMKN
+                        { totalYield } PMKN
                     </div>
                 </TopBanner>
             </Banner>
         
             <div>
-                <ClaimButton>
+                <ClaimButton onClick={withdrawYield}>
                     Claim
                 </ClaimButton>
                 
@@ -90,7 +100,7 @@ export default function StakeBox() {
                 <BottomBanner>
 
                     <Circle>
-                            Rate: { stakingBalance } / day
+                            Rate: { stakingRate } / day
                     </Circle>
 
                 </BottomBanner>

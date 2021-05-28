@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useEffect, useCallback, useMemo, useState } from "react"
 import styled from "styled-components";
 import { ethers } from "ethers"
 
@@ -26,23 +26,18 @@ export default function Main() {
     const {
         userAddress, 
         setUserAddress,
-        ethBalance, 
         setEthBalance,
-        daiBalance,
         setDaiBalance,
-        pmknBalance,
         setPmknBalance,
-        stakingBalance,
         setStakingBalance,
-        pmknYield, 
         setPmknYield,
+        setPmknUnrealizedYield,
     } = useUser();
 
     /**
      * @notice Imported contract state
      */
     const {
-        networkId,
         setNetworkId,
         //provider,
         //setProvider,
@@ -53,15 +48,20 @@ export default function Main() {
     const daiAddress = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa"
     const daiContract = new ethers.Contract(daiAddress, ERC20.abi, provider);
 
-    const pmknFarmAddress = "0xe671dE15B075F4ac74dC37bd467e8A73B68Fb0FE"
+    const pmknFarmAddress = "0xDf654E5BbaD6d7C5143a4Cae2e700a8996f8FBDE"
     const pmknFarmContract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, provider)
 
-    const pmknTokenAddress = "0x2216Fd2A05b603c14d01290cDe48e652944c4853"
+    const pmknTokenAddress = "0xbD307D0f73253FC670082a97cCA68582f3406a13"
     const pmknTokenContract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, provider)
     
     /**
      * @notice Getters
      */
+
+     //const loadProvider = async() => {
+     //    let prov = new ethers.providers.Web3Provider(window.ethereum)
+     //    setProvider(prov)
+     //}
 
     const loadUser = useCallback(async() => {
         let accounts = provider.getSigner()
@@ -82,7 +82,7 @@ export default function Main() {
     const loadDaiBalance = useCallback(async(user) => {
         let balance = await daiContract.balanceOf(user)
         setDaiBalance(balance.toString())
-    }, [daiContract])
+    }, [daiContract, setDaiBalance])
 
     const loadPmknBalance = useCallback(async(user) => {
         let balance = await pmknTokenContract.balanceOf(user)
@@ -94,6 +94,18 @@ export default function Main() {
         setStakingBalance(balance.toString())
     }, [setStakingBalance, pmknFarmContract])
 
+    const loadPmknYield = useCallback(async(user) => {
+        let balance = await pmknFarmContract.calculateYieldTotal(user)
+        setPmknYield(balance.toString())
+    }, [setPmknYield, pmknFarmContract])
+
+    const loadPmknUnrealizedYield = useCallback(async(user) => {
+        let balance = await pmknFarmContract.pmknBalance(user)
+        setPmknUnrealizedYield(balance.toString())
+    }, [setPmknUnrealizedYield, pmknFarmContract])
+
+
+
 
     const componentDidMount = useCallback(async() => {
         await loadUser().then(res => {
@@ -102,6 +114,8 @@ export default function Main() {
             loadDaiBalance(res)
             loadPmknBalance(res)
             loadStakingBalance(res)
+            loadPmknYield(res)
+            loadPmknUnrealizedYield(res)
         })
         await loadNetwork()
     }, [
@@ -110,7 +124,9 @@ export default function Main() {
         loadEthBalance, 
         loadDaiBalance,
         loadPmknBalance,
-        loadStakingBalance
+        loadStakingBalance,
+        setUserAddress,
+        loadPmknYield,
     ])
 
     useEffect(() => {
@@ -119,11 +135,43 @@ export default function Main() {
         }
     }, [componentDidMount, userAddress])
 
+
+    /**
+     * @notice Contract write methods
+     */
+    const stake = async(_amount) => {
+        let signer = provider.getSigner()
+        let amount = ethers.utils.parseEther(_amount)
+        let tx = await daiContract.connect(signer).approve(pmknFarmAddress, amount)
+        provider.waitForTransaction(tx.hash)
+        .then(async() => {
+            tx = await pmknFarmContract.connect(signer).stake(amount)
+        })
+        return tx
+    }
+
+    const unstake = async(_amount) => {
+        let signer = provider.getSigner()
+        let amount = ethers.utils.parseEther(_amount)
+        let tx = await pmknFarmContract.connect(signer).unstake(amount)
+        return tx
+    }
+
+    const withdrawYield = async() => {
+        let signer = provider.getSigner()
+        let tx = await pmknFarmContract.connect(signer).withdrawYield()
+        return tx
+    }
+
     return(
         <>
         <NavBar />
         <Container>
-            <MainCard />
+            <MainCard 
+            stakeFunc={stake}
+            unstakeFunc={unstake}
+            withdrawYieldFunc={withdrawYield}
+            />
         </Container>
         </>
     )

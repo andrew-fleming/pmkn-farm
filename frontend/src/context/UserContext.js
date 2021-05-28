@@ -13,6 +13,10 @@ export const UserContext = React.createContext({
     setStakingBalance: () => {},
     pmknYield: "",
     setPmknYield: () => {},
+    pmknUnrealizedYield: "",
+    setPmknUnrealizedYield: () => {},
+    //totalPmknYield: '',
+    //setTotalPmknYield: () => {},
 })
 
 export const UserProvider = UserContext.Provider

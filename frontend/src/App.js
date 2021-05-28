@@ -21,6 +21,8 @@ function App() {
   const [pmknBalance, setPmknBalance] = useState('')
   const [stakingBalance, setStakingBalance] = useState('')
   const [pmknYield, setPmknYield] = useState('')
+  const [pmknUnrealizedYield, setPmknUnrealizedYield] = useState('')
+  //const [totalPmknYield, setTotalPmknYield] = useState('')
 
   const userState = {
     userAddress, 
@@ -35,6 +37,10 @@ function App() {
     setStakingBalance,
     pmknYield,
     setPmknYield,
+    pmknUnrealizedYield,
+    setPmknUnrealizedYield,
+    //totalPmknYield,
+    //setTotalPmknYield
   }
 
   /**
