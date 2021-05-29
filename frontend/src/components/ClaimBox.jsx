@@ -2,8 +2,8 @@ import React from "react"
 import styled from "styled-components";
 import { ethers } from "ethers";
 
-import { useUser } from '../context/UserContext'
-import { useContract } from '../context/ContractContext'
+import { useUser } from "../context/UserContext"
+import { useContract } from "../context/ContractContext"
 
 const Container = styled.div`
     height: 15rem;

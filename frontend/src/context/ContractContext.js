@@ -1,7 +1,7 @@
 import React, { useContext } from "react"
 
 export const ContractContext = React.createContext({
-    init: '',
+    init: "",
     setInit: () => {},
     networkId: "",
     setNetworkId: () => {},

@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { ethers } from "ethers";
 import MarkDai from "../assets/Mark_Dai.svg";
 
-import { useUser } from '../context/UserContext'
-import { useContract } from '../context/ContractContext'
+import { useUser } from "../context/UserContext"
+import { useContract } from "../context/ContractContext"
 
 const Container = styled.div`
     height: 15rem;
@@ -90,7 +90,7 @@ export default function StakeBox() {
         pmknFarmContract,
     } = useContract();
 
-    const [ transferAmount, setTransferAmount ] = useState('');
+    const [ transferAmount, setTransferAmount ] = useState("");
 
     /**
      * @notice Fired when user types in input. Sets transfer amount for stake/unstake functions 
@@ -135,7 +135,7 @@ export default function StakeBox() {
         <Container>
             <Banner>
                 <TopBanner>
-                <Img src={MarkDai} alt='DAI logo'/>
+                <Img src={MarkDai} alt="DAI logo"/>
                         DAI (1 PMKN / Day)
                 </TopBanner>
             </Banner>

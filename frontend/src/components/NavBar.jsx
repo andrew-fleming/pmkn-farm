@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import { ethers } from "ethers";
 
-import { useUser } from '../context/UserContext'
-import { useContract } from '../context/ContractContext'
+import { useUser } from "../context/UserContext"
+import { useContract } from "../context/ContractContext"
 
 const MetaContainer = styled.div`
     height: 6rem;
@@ -92,7 +92,7 @@ export default function NavBar() {
                                 { ethBalance ? Number.parseFloat(ethers.utils.formatEther(ethBalance)).toPrecision(3) : "0" } ETH
                                 </Eth>
                             <Account>
-                                { userAddress ? userAddress.slice(0, 5) + '...' + userAddress.slice(38, 42) : null }
+                                { userAddress ? userAddress.slice(0, 5) + "..." + userAddress.slice(38, 42) : null }
                             </Account>
                     
                         </AccountWrapper>

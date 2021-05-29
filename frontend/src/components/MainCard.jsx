@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import StakeBox from "./StakeBox"
 import ClaimBox from "./ClaimBox"
 
-import { useUser } from '../context/UserContext'
+import { useUser } from "../context/UserContext"
 
 const Container = styled.div`
     display: flex;
