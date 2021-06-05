@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
+import "hardhat/console.sol";
+
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PmknToken.sol";
 
 /// @title Pmkn Farm
 /// @author Andrew Fleming
-/// @notice This contract creates a simple yeild farming dApp that rewards users for
+/// @notice This contract creates a simple yield farming dApp that rewards users for
 ///         locking up their DAI stablecoin with a new ERC20 token PmknToken
 /// @dev The inherited PmknToken contract automatically mints PMKN when the user invokes the
 ///      withdrawYield function. The calculateYieldTime and calculateYieldTotal function 
@@ -20,8 +22,6 @@ contract PmknFarm {
     mapping(address => bool) public isStaking;
     // userAddress => timeStamp
     mapping(address => uint256) public startTime;
-    // userAddress => pmknYield
-    mapping(address => uint256) public pmknYield;
     // userAddress => pmknBalance
     mapping(address => uint256) public pmknBalance;
 
@@ -43,7 +43,7 @@ contract PmknFarm {
             pmknToken = _pmknToken;
         }
 
-    /// @notice Locks the  user's DAI within the contract
+    /// @notice Locks the user's DAI within the contract
     /// @dev If the user already staked DAI, the 
     /// @param amount Quantity of DAI the user wishes to lock in the contract
     function stake(uint256 amount) public {
@@ -59,7 +59,7 @@ contract PmknFarm {
     }
 
     /// @notice Retrieves funds locked in contract and sends them back to user
-    /// @dev The toTransfer variable transfers accrued yield from pmknYield to pmknBalance
+    /// @dev The toTransfer variable transfers the calculatedYieldTotal result to pmknBalance
     ///      in order to save the user's unrealized yield
     /// @param amount The quantity of DAI the user wishes to receive
     function unstake(uint256 amount) public {
@@ -68,14 +68,16 @@ contract PmknFarm {
             stakingBalance[msg.sender] >= amount, 
             "Nothing to unstake"
         );
-        uint256 toTransfer = calculateYieldTotal(msg.sender);
-        stakingBalance[msg.sender] -= amount;
-        daiToken.transfer(msg.sender, amount);
-        pmknBalance[msg.sender] += toTransfer;
+        uint256 yieldTransfer = calculateYieldTotal(msg.sender);
+        uint256 balTransfer = amount;
+        amount = 0;
+        stakingBalance[msg.sender] -= balTransfer;
+        daiToken.transfer(msg.sender, balTransfer);
+        pmknBalance[msg.sender] += yieldTransfer;
         if(stakingBalance[msg.sender] == 0){
             isStaking[msg.sender] = false;
         }
-        emit Unstake(msg.sender, amount);
+        emit Unstake(msg.sender, balTransfer);
     }
 
     /// @notice Helper function for determining how long the user staked
@@ -103,13 +105,13 @@ contract PmknFarm {
     /// @dev The if conditional statement checks for a stored PMKN balance. If it exists, the
     ///      the accrued yield is added to the accruing yield before the PMKN mint function is called
     function withdrawYield() public {
+        uint256 toTransfer = calculateYieldTotal(msg.sender);
+
         require(
-            pmknYield[msg.sender] > 0 || 
-            startTime[msg.sender] != block.timestamp,
+            toTransfer > 0 ||
+            pmknBalance[msg.sender] > 0,
             "Nothing to withdraw"
             );
-
-        uint256 toTransfer = calculateYieldTotal(msg.sender);
             
         if(pmknBalance[msg.sender] != 0){
             uint256 oldBalance = pmknBalance[msg.sender];
@@ -117,7 +119,6 @@ contract PmknFarm {
             toTransfer += oldBalance;
         }
 
-        startTime[msg.sender] = block.timestamp;
         pmknToken.mint(msg.sender, toTransfer);
         emit YieldWithdraw(msg.sender, toTransfer);
     } 

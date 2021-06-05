@@ -204,9 +204,16 @@ describe("Start from deployment for time increase", () => {
                 .to.eq((86400))
         })
 
-        it("should mint correct token amount in total supply and user", async() => {           
-            let time = await pmknFarm.calculateYieldTime(alice.address)
-            let formatTime = time / 86400
+        it("should mint correct token amount in total supply and user", async() => { 
+            // Setup
+            let toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+
+            await time.increase(86400)
+
+            let _time = await pmknFarm.calculateYieldTime(alice.address)
+            let formatTime = _time / 86400
             let staked = await pmknFarm.stakingBalance(alice.address)
             let bal = staked * formatTime
             let newBal = ethers.utils.formatEther(bal.toString())
