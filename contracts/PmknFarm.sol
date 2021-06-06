@@ -51,7 +51,7 @@ contract PmknFarm {
             amount > 0 &&
             daiToken.balanceOf(msg.sender) >= amount, 
             "You cannot stake zero tokens");
-            
+
         if(isStaking[msg.sender] == true){
             uint256 toTransfer = calculateYieldTotal(msg.sender);
             pmknBalance[msg.sender] += toTransfer;
@@ -125,6 +125,7 @@ contract PmknFarm {
             toTransfer += oldBalance;
         }
 
+        startTime[msg.sender] = block.timestamp;
         pmknToken.mint(msg.sender, toTransfer);
         emit YieldWithdraw(msg.sender, toTransfer);
     } 
