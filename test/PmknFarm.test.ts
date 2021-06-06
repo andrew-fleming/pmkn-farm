@@ -253,6 +253,26 @@ describe("Start from deployment for time increase", () => {
         })
     })
 
+    describe("Multiple Stakes", async() => {
+        it("should update yield balance after multiple stakes", async() => {
+            let toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+
+            time.increase(8640)
+
+            toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+
+            res = await pmknFarm.pmknBalance(alice.address)
+            let formatRes = ethers.utils.formatEther(res)
+
+            expect(Number.parseFloat(formatRes).toFixed(3))
+                .to.eq("1.000")
+        })
+    })
+
     describe("Events", async() => {
         it("should emit Stake", async() => {
             let toTransfer = ethers.utils.parseEther("10")

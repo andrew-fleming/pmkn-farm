@@ -51,6 +51,12 @@ contract PmknFarm {
             amount > 0 &&
             daiToken.balanceOf(msg.sender) >= amount, 
             "You cannot stake zero tokens");
+            
+        if(isStaking[msg.sender] == true){
+            uint256 toTransfer = calculateYieldTotal(msg.sender);
+            pmknBalance[msg.sender] += toTransfer;
+        }
+
         daiToken.transferFrom(msg.sender, address(this), amount);
         stakingBalance[msg.sender] += amount;
         startTime[msg.sender] = block.timestamp;
@@ -59,7 +65,7 @@ contract PmknFarm {
     }
 
     /// @notice Retrieves funds locked in contract and sends them back to user
-    /// @dev The toTransfer variable transfers the calculatedYieldTotal result to pmknBalance
+    /// @dev The yieldTransfer variable transfers the calculatedYieldTotal result to pmknBalance
     ///      in order to save the user's unrealized yield
     /// @param amount The quantity of DAI the user wishes to receive
     function unstake(uint256 amount) public {
