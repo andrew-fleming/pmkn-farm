@@ -62,6 +62,12 @@ describe("PmknToken Contract", () => {
                 .to.eq(50)
         })
 
+        //it("should burn tokens", async() => {
+        //    await pmknToken.burn(owner.address, 25)
+        //    expect(await pmknToken.totalSupply())
+        //        .to.eq(25)
+        //})
+
         it("should revert mint from non-owner", async() => {
             await expect(pmknToken.connect(alice).mint(alice.address, 20))
                 .to.be.revertedWith("caller is not the owner")

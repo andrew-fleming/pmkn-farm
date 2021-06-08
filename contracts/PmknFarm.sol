@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PmknToken.sol";
+import "./JackOLantern.sol";
 
 /// @title Pmkn Farm
 /// @author Andrew Fleming
@@ -28,8 +29,10 @@ contract PmknFarm {
     string public name = "Pmkn Farm";
 
     IERC20 public daiToken;
-
     PmknToken public pmknToken;
+    JackOLantern public jackOLantern;
+
+    uint256 private nftPrice;
 
     event Stake(address indexed from, uint256 amount);
     event Unstake(address indexed from, uint256 amount);
@@ -37,10 +40,14 @@ contract PmknFarm {
 
     constructor(
         IERC20 _daiToken,
-        PmknToken _pmknToken
+        PmknToken _pmknToken,
+        JackOLantern _jackOLantern,
+        uint256 _nftPrice
         ) {
             daiToken = _daiToken;
             pmknToken = _pmknToken;
+            jackOLantern = _jackOLantern;
+            nftPrice = _nftPrice;
         }
 
     /// @notice Locks the user's DAI within the contract
@@ -129,4 +136,17 @@ contract PmknFarm {
         pmknToken.mint(msg.sender, toTransfer);
         emit YieldWithdraw(msg.sender, toTransfer);
     } 
+
+    /// @notice
+    /// @dev 
+    /// @param user g
+    /// @param tokenURI g
+    function mintNFT(address user, string memory tokenURI) public {
+        require(
+            pmknToken.balanceOf(msg.sender) >= nftPrice, 
+            "Not enough PMKN"
+        );
+        pmknToken.transferFrom(msg.sender, address(this), nftPrice);
+        jackOLantern.mintItem(user, tokenURI);
+    }
 }

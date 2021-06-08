@@ -4,6 +4,7 @@ import { ethers } from "ethers"
 
 import PmknFarm from "./abis/PmknFarm.json"
 import PmknToken from "./abis/PmknToken.json"
+import JackOLantern from "./abis/JackOLantern.json"
 import ERC20 from "./abis/ERC20.json"
 
 import { UserProvider } from "./context/UserContext"
@@ -14,7 +15,7 @@ import Main from "./components/Main";
 
 const Container = styled.div`
   width: 100%;
-  height: 45.5rem;
+  height: 50rem;
 `;
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
   const [daiContract, setDaiContract] = useState({})
   const [pmknTokenContract, setPmknTokenContract] = useState({})
   const [pmknFarmContract, setPmknFarmContract] = useState({})
+  const [jackContract, setJackContract] = useState({})
 
   const contractState = {
     init,
@@ -70,6 +72,8 @@ function App() {
     setPmknTokenContract,
     pmknFarmContract,
     setPmknFarmContract,
+    jackContract,
+    setJackContract
   }
 
   /**
@@ -89,22 +93,29 @@ const loadDaiContract = useCallback(async(_provider) => {
 }, [setDaiContract])
 
 const loadPmknToken = useCallback(async(_provider) => {
-    let pmknTokenAddress = "0x4A06faC1E2DD890f084Aeb775B331679c9d0e4dF" 
+    let pmknTokenAddress = "0xb35e917ef93b72A7697507D25077cDa62303163C" 
     let contract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, _provider)
     setPmknTokenContract(contract)
 }, [setPmknTokenContract])
 
 const loadPmknFarmContract = useCallback(async(_provider) => {
-    let pmknFarmAddress = "0x39Ed96D14bC8904340E9AE4b6741a47fa1e513Dc"
+    let pmknFarmAddress = "0xAea5C81e8892b00a77442808D60BB2aB6c8e5322"
     let contract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, _provider)
     setPmknFarmContract(contract)
 }, [setPmknFarmContract])
+
+const loadJackContract = useCallback(async(_provider) => {
+  let jackContractAddress = "0x5207793C1ECC74b76Af82B24be7eB4ff8fdBb0dC"
+  let contract = new ethers.Contract(jackContractAddress, JackOLantern.abi, _provider)
+  setJackContract(contract)
+}, [setJackContract])
 
 const componentDidMount = useCallback(async() => {
     await loadProvider().then(async(res) => {
         await loadDaiContract(res)
         await loadPmknToken(res)
         await loadPmknFarmContract(res)
+        await loadJackContract(res)
     })
     setInit(true)
 }, [
@@ -112,12 +123,13 @@ const componentDidMount = useCallback(async() => {
     loadDaiContract, 
     loadPmknToken, 
     loadPmknFarmContract, 
+    loadJackContract,
     setInit
 ])
 
 useEffect(() => {
     if(init === false){
-        componentDidMount()
+      componentDidMount()
     }
 }, [componentDidMount, daiContract, init])
 
@@ -192,7 +204,7 @@ const userDidMount = useCallback(async() => {
 
 useEffect(() => {
   if(userAddress === "" && init === true){
-      userDidMount()
+    userDidMount()
   }
 }, [userDidMount, init, userAddress])
 
