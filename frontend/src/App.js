@@ -93,19 +93,19 @@ const loadDaiContract = useCallback(async(_provider) => {
 }, [setDaiContract])
 
 const loadPmknToken = useCallback(async(_provider) => {
-    let pmknTokenAddress = "0xb35e917ef93b72A7697507D25077cDa62303163C" 
+    let pmknTokenAddress = "0x5A67113312875395A339bF158E77b7aEca998622" 
     let contract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, _provider)
     setPmknTokenContract(contract)
 }, [setPmknTokenContract])
 
 const loadPmknFarmContract = useCallback(async(_provider) => {
-    let pmknFarmAddress = "0xAea5C81e8892b00a77442808D60BB2aB6c8e5322"
+    let pmknFarmAddress = "0x21A79e8F883Ea23F6fcbA261aa6Bf4a689E6668B"
     let contract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, _provider)
     setPmknFarmContract(contract)
 }, [setPmknFarmContract])
 
 const loadJackContract = useCallback(async(_provider) => {
-  let jackContractAddress = "0x5207793C1ECC74b76Af82B24be7eB4ff8fdBb0dC"
+  let jackContractAddress = "0x57D3932Ed4C082DE446d07A2814173427aF114FE"
   let contract = new ethers.Contract(jackContractAddress, JackOLantern.abi, _provider)
   setJackContract(contract)
 }, [setJackContract])
@@ -228,6 +228,10 @@ useEffect(() => {
           loadPmknUnrealizedYield(userAddress)
           loadPmknYield(userAddress)
           loadPmknBalance(userAddress)
+      })
+
+      pmknFarmContract.on("MintNFT", async(userAddress) => {
+        loadPmknBalance(userAddress)
       })
   }
 

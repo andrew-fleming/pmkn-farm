@@ -37,6 +37,7 @@ contract PmknFarm {
     event Stake(address indexed from, uint256 amount);
     event Unstake(address indexed from, uint256 amount);
     event YieldWithdraw(address indexed to, uint256 amount);
+    event MintNFT(address indexed to, uint256 indexed tokenId);
 
     constructor(
         IERC20 _daiToken,
@@ -147,6 +148,7 @@ contract PmknFarm {
             "Not enough PMKN"
         );
         pmknToken.transferFrom(msg.sender, address(this), nftPrice);
-        jackOLantern.mintItem(user, tokenURI);
+        uint256 tokenId = jackOLantern.mintItem(user, tokenURI);
+        emit MintNFT(msg.sender, tokenId);
     }
 }

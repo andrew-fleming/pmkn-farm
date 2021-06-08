@@ -21,18 +21,22 @@ describe("PmknFarm Contract", () => {
     let pmknFarm: Contract;
     let mockDai: Contract;
     let pmknToken: Contract;
+    let jackOLantern: Contract;
 
     const daiAmount: BigNumber = ethers.utils.parseEther("25000");
+    const nftPrice: BigNumber = ethers.utils.parseEther("1")
 
     before(async() => {
         const PmknFarm = await ethers.getContractFactory("PmknFarm");
         const MockDai = await ethers.getContractFactory("MockDai");
         const PmknToken = await ethers.getContractFactory("PmknToken");
+        const JackOLantern = await ethers.getContractFactory("JackOLantern");
 
         [owner, alice, bob, carol, dave, eve] = await ethers.getSigners();
 
         mockDai = await MockDai.deploy()
         pmknToken =  await PmknToken.deploy()
+        jackOLantern = await JackOLantern.deploy()
 
         /*//////////////////////
         // Dai Transfers      //
@@ -47,9 +51,11 @@ describe("PmknFarm Contract", () => {
             mockDai.mint(eve.address, daiAmount)
         ])
 
-        let pmknFarmParams: Array<string> = [
+        let pmknFarmParams: Array<string | BigNumber> = [
             mockDai.address,
-            pmknToken.address
+            pmknToken.address,
+            jackOLantern.address,
+            nftPrice
         ]
 
         // PmknFarm Contract deployment
@@ -170,18 +176,27 @@ describe("Start from deployment for time increase", () => {
     let mockDai: Contract
     let pmknFarm: Contract
     let pmknToken: Contract
+    let jackOLantern: Contract
 
     beforeEach(async() => {
         // Bare-boned initial deployment setup
         const PmknFarm = await ethers.getContractFactory("PmknFarm");
         const MockDai = await ethers.getContractFactory("MockDai");
         const PmknToken = await ethers.getContractFactory("PmknToken");
+        const JackOLantern = await ethers.getContractFactory("JackOLantern");
         [alice] = await ethers.getSigners();
         mockDai = await MockDai.deploy()
         pmknToken =  await PmknToken.deploy()
+        jackOLantern = await JackOLantern.deploy()
         const daiAmount: BigNumber = ethers.utils.parseEther("25000");
+        const nftPrice: BigNumber = ethers.utils.parseEther("1")
         await mockDai.mint(alice.address, daiAmount),
-        pmknFarm = await PmknFarm.deploy(mockDai.address, pmknToken.address)
+        pmknFarm = await PmknFarm.deploy(
+            mockDai.address, 
+            pmknToken.address, 
+            jackOLantern.address, 
+            nftPrice
+            )
         await pmknToken._transferOwnership(pmknFarm.address)
     })
 
@@ -305,6 +320,21 @@ describe("Start from deployment for time increase", () => {
             expect(await pmknFarm.withdrawYield())
                 .to.emit(pmknFarm, "YieldWithdraw")
                 .withArgs(alice.address, res)
+        })
+
+        it("should emit MintNFT event", async() => {
+            let toTransfer = ethers.utils.parseEther("10")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+            await time.increase(86400)
+
+            await pmknFarm.withdrawYield()
+
+            toTransfer = ethers.utils.parseEther("1")
+            await pmknToken.approve(pmknFarm.address, toTransfer)
+            expect(await pmknFarm.mintNFT(alice.address, "www"))
+                .to.emit(pmknFarm, "MintNFT")
+                .withArgs(alice.address, 1)
         })
     })
 })
