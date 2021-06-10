@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "hardhat/console.sol";
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PmknToken.sol";
 import "./JackOLantern.sol";
@@ -25,6 +23,8 @@ contract PmknFarm {
     mapping(address => uint256) public startTime;
     // userAddress => pmknBalance
     mapping(address => uint256) public pmknBalance;
+    // tokenURI => nftCount
+    mapping(string => uint256) public nftCount;
 
     string public name = "Pmkn Farm";
 
@@ -150,6 +150,7 @@ contract PmknFarm {
         );
         pmknToken.transferFrom(msg.sender, address(this), nftPrice);
         uint256 tokenId = jackOLantern.mintItem(user, tokenURI);
+        nftCount[tokenURI]++;
         contractPmknBalance += nftPrice;
         emit MintNFT(msg.sender, tokenId);
     }

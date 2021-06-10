@@ -10,6 +10,14 @@ async function main() {
     const balance = await deployer.getBalance();
     console.log(`Account balance: ${balance.toString()}`)
 
+    /**
+     * @notice For tetsnets without Maker/DAI
+     * @dev Comment out if using a network with DAI (ie Kovan) and use/insert
+     *      DAI address in config.ts
+     */
+    // const MockDai = await ethers.getContractFactory("MockDai")
+    // const mockDai = await MockDai.deploy()
+
     const PmknToken = await ethers.getContractFactory("PmknToken")
     const pmknToken = await PmknToken.deploy()
     console.log(`PmknToken address: ${pmknToken.address}`)
@@ -21,6 +29,7 @@ async function main() {
     const PmknFarm = await ethers.getContractFactory("PmknFarm");
     const pmknFarm = await PmknFarm.deploy(
         ...mainConfig, pmknToken.address, jackOLantern.address, nftPrice
+        // mockDai.address, pmknToken.address, jackOLantern.address, nftPrice
         )
     console.log(`PmknFarm address: ${pmknFarm.address}`)
     console.log(`NFT Price: ${ethers.utils.formatEther(nftPrice)} PMKN`)

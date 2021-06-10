@@ -318,6 +318,26 @@ describe("Start from deployment for time increase", () => {
                 .to.emit(pmknFarm, "MintNFT")
                 .withArgs(alice.address, 2)
         })
+
+        it("should update nftCount", async() => {
+            let toTransfer = ethers.utils.parseEther("100")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+
+            time.increase(1000000)
+
+            await pmknFarm.withdrawYield()
+
+            res = await pmknFarm.nftCount("www")
+            expect(res).to.eq(0)
+
+            toTransfer = ethers.utils.parseEther("1")
+            await pmknToken.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.mintNFT(alice.address, "www")
+
+            res = await pmknFarm.nftCount("www")
+            expect(res).to.eq(1)
+        })
     })
 
     describe("Events", async() => {
