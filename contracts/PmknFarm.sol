@@ -53,7 +53,8 @@ contract PmknFarm {
         }
 
     /// @notice Locks the user's DAI within the contract
-    /// @dev If the user already staked DAI, the 
+    /// @dev If the user already staked DAI, the pmknBalance updates to keep track
+    ///      of the unrealized yield
     /// @param amount Quantity of DAI the user wishes to lock in the contract
     function stake(uint256 amount) public {
         require(
@@ -139,10 +140,11 @@ contract PmknFarm {
         emit YieldWithdraw(msg.sender, toTransfer);
     } 
 
-    /// @notice
-    /// @dev 
-    /// @param user g
-    /// @param tokenURI g
+    /// @notice Mints the Jack-O-Lantern NFT for the user
+    /// @dev Charges the user the declared nftPrice in PMKN before evoking 
+    ///      the mintItem function
+    /// @param user User address
+    /// @param tokenURI The URI pointing to the image hosted on IPFS
     function mintNFT(address user, string memory tokenURI) public {
         require(
             pmknToken.balanceOf(msg.sender) >= nftPrice, 
