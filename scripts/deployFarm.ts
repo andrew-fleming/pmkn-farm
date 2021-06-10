@@ -25,8 +25,13 @@ async function main() {
     console.log(`PmknFarm address: ${pmknFarm.address}`)
     console.log(`NFT Price: ${ethers.utils.formatEther(nftPrice)} PMKN`)
 
-    await pmknToken._transferOwnership(pmknFarm.address)
-    console.log(`PmknToken ownership transferred to: ${pmknFarm.address}`)
+    const pmknMinter = await pmknToken.MINTER_ROLE()
+    await pmknToken.grantRole(pmknMinter, pmknFarm.address)
+    console.log(`PmknToken minter role transferred to: ${pmknFarm.address}`)
+
+    const jackMinter = await jackOLantern.MINTER_ROLE()
+    await jackOLantern.grantRole(jackMinter, pmknFarm.address)
+    console.log(`Jack-O-Lantern NFT minter role transferred to ${pmknFarm.address}`)
 }
 
 main()

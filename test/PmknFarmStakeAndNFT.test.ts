@@ -201,6 +201,9 @@ describe("Start from deployment for time increase", () => {
         //await pmknToken._transferOwnership(pmknFarm.address)
         let minter = await pmknToken.MINTER_ROLE()
         await pmknToken.grantRole(minter, pmknFarm.address)
+
+        let jackMinter = await jackOLantern.MINTER_ROLE()
+        await jackOLantern.grantRole(jackMinter, pmknFarm.address)
     })
 
     describe("Yield", async() => {
@@ -291,6 +294,32 @@ describe("Start from deployment for time increase", () => {
         })
     })
 
+    describe("NFT", async() => {
+        it("should mint an nft", async() => {
+            let toTransfer = ethers.utils.parseEther("100")
+            await mockDai.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.stake(toTransfer)
+
+            time.increase(1000000)
+
+            await pmknFarm.withdrawYield()
+
+            toTransfer = ethers.utils.parseEther("1")
+            await pmknToken.approve(pmknFarm.address, toTransfer)
+            await pmknFarm.mintNFT(alice.address, "www")
+
+            await pmknToken.approve(pmknFarm.address, toTransfer)
+            expect(await pmknFarm.mintNFT(alice.address, "www"))
+                .to.emit(pmknFarm, "MintNFT")
+                .withArgs(alice.address, 1)
+
+            await pmknToken.approve(pmknFarm.address, toTransfer)
+            expect(await pmknFarm.mintNFT(alice.address, "www"))
+                .to.emit(pmknFarm, "MintNFT")
+                .withArgs(alice.address, 2)
+        })
+    })
+
     describe("Events", async() => {
         it("should emit Stake", async() => {
             let toTransfer = ethers.utils.parseEther("10")
@@ -337,7 +366,7 @@ describe("Start from deployment for time increase", () => {
             await pmknToken.approve(pmknFarm.address, toTransfer)
             expect(await pmknFarm.mintNFT(alice.address, "www"))
                 .to.emit(pmknFarm, "MintNFT")
-                .withArgs(alice.address, 1)
+                .withArgs(alice.address, 0)
         })
     })
 })

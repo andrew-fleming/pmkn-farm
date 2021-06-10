@@ -33,6 +33,7 @@ contract PmknFarm {
     JackOLantern public jackOLantern;
 
     uint256 private nftPrice;
+    uint256 public contractPmknBalance;
 
     event Stake(address indexed from, uint256 amount);
     event Unstake(address indexed from, uint256 amount);
@@ -149,6 +150,7 @@ contract PmknFarm {
         );
         pmknToken.transferFrom(msg.sender, address(this), nftPrice);
         uint256 tokenId = jackOLantern.mintItem(user, tokenURI);
+        contractPmknBalance += nftPrice;
         emit MintNFT(msg.sender, tokenId);
     }
 }
