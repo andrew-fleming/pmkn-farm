@@ -44,6 +44,7 @@ describe("Lottery Contract", () => {
             expect(lottery).to.be.ok
             expect(jackContract).to.be.ok
         })
+
         it("should track tokenIds", async() => {
             let minter = await jackContract.MINTER_ROLE()
             await jackContract.grantRole(minter, owner.address)
@@ -138,6 +139,64 @@ describe("Lottery Contract", () => {
                 .to.be.revertedWith("You either did not win or nothing in lotteryPool")
             await expect(lottery.connect(alice).claimLottoWinnings())
                 .to.be.revertedWith("You either did not win or nothing in lotteryPool")
+        })
+    })
+
+    describe("Events", async() => {
+        beforeEach(async() => {
+            let minter = await jackContract.MINTER_ROLE()
+            await Promise.all([
+                jackContract.grantRole(minter, owner.address),
+                pmknToken.grantRole(minter, owner.address),
+                pmknToken.mint(owner.address, ethers.utils.parseEther("999")),
+                jackContract.safeMint(alice.address),
+                jackContract.safeMint(bob.address),
+                jackContract.safeMint(alice.address),
+                jackContract.safeMint(bob.address),
+                jackContract.safeMint(alice.address),
+                jackContract.safeMint(bob.address),
+                pmknToken.approve(lottery.address, ethers.utils.parseEther("25")),
+                lottery.addToLotteryPool(owner.address, ethers.utils.parseEther("25")),
+            ])
+        })
+
+        it("should emit LotteryStart", async() => {
+            await lottery.testGetWinningNumber()
+            expect(await lottery.testGetWinningNumber())
+                .to.emit(lottery, "LotteryStart")
+        })
+
+        it("should emit NumberReceived", async() => {
+            let _requestId = await lottery.requestId()
+            expect(await lottery.testGetWinningNumber())
+                .to.emit(lottery, "NumberReceived")
+                .withArgs(_requestId, 3)
+        })
+
+        it("should emit LotteryClaim", async() => {
+            await lottery.testGetWinningNumber()
+            expect(await lottery.connect(bob).claimLottoWinnings())
+                .to.emit(lottery, "LotteryClaim")
+                    .withArgs(bob.address, ethers.utils.parseEther("25"))
+        })
+
+        it("should emit AddPmkn", async() => {
+            let amount = ethers.utils.parseEther("10")
+            await pmknToken.approve(lottery.address, amount)
+            expect(await lottery.addToLotteryPool(owner.address, amount))
+                .to.emit(lottery, "AddPmkn")
+                .withArgs(owner.address, amount)
+        })
+
+        it("should emit WithdrawLink", async() => {
+            let amount = ethers.utils.parseEther("10")
+            await mockLink.mint(owner.address, amount)
+            await mockLink.approve(lottery.address, amount)
+            await mockLink.transfer(lottery.address, amount)
+            expect(await lottery.withdrawLink())
+                .to.emit(lottery, "WithdrawLink")
+                .withArgs(owner.address, amount)
+
         })
     })
 })
