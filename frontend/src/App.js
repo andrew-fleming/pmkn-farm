@@ -13,7 +13,6 @@ import { ContractProvider } from "./context/ContractContext"
 
 import Main from "./components/Main";
 
-
 const Container = styled.div`
   width: 100%;
   height: 75rem;
@@ -121,37 +120,37 @@ function App() {
 }, [setProvider])
 
 const loadDaiContract = useCallback(async(_provider) => {
-    let daiAddress = "<DAI CONTRACT HERE>" 
+    let daiAddress = "DAI_CONTRACT_HERE" 
     let contract = new ethers.Contract(daiAddress, ERC20.abi, _provider)
     setDaiContract(contract)
 }, [setDaiContract])
 
 const loadLinkContract = useCallback(async(_provider) => {
-  let linkAddress = "<LINK CONTRACT HERE>"
+  let linkAddress = "LINK_CONTRACT_HERE"
   let contract = new ethers.Contract(linkAddress, ERC20.abi, _provider)
   setLinkContract(contract)
 }, [setLinkContract])
 
 const loadPmknToken = useCallback(async(_provider) => {
-    let pmknTokenAddress = "<PMKNTOKEN CONTRACT HERE>" 
+    let pmknTokenAddress = "PMKNTOKEN_CONTRACT_HERE" 
     let contract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, _provider)
     setPmknTokenContract(contract)
 }, [setPmknTokenContract])
 
 const loadPmknFarmContract = useCallback(async(_provider) => {
-    let pmknFarmAddress = "<PMKNFARM CONTRACT HERE>"
+    let pmknFarmAddress = "PMKNFARM_CONTRACT_HERE"
     let contract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, _provider)
     setPmknFarmContract(contract)
 }, [setPmknFarmContract])
 
 const loadJackContract = useCallback(async(_provider) => {
-  let jackContractAddress = "<JACKOLANTERN CONTRACT HERE>"
+  let jackContractAddress = "JACKOLANTER_CONTRACT_HERE"
   let contract = new ethers.Contract(jackContractAddress, JackOLantern.abi, _provider)
   setJackContract(contract)
 }, [setJackContract])
 
 const loadLotteryContract = useCallback(async(_provider) => {
-  let lotteryContractAddress = "<LOTTERY CONTRACT HERE>"
+  let lotteryContractAddress = "LOTTERY_CONTRACT_HERE"
   let contract = new ethers.Contract(lotteryContractAddress, Lottery.abi, _provider)
   setLotteryContract(contract)
 }, [setLotteryContract])
@@ -178,9 +177,13 @@ const componentDidMount = useCallback(async() => {
 ])
 
 useEffect(() => {
-    if(init === false){
-      componentDidMount()
-    }
+	try {
+		if(init === false){
+			componentDidMount()
+		  }
+	} catch (error) {
+		console.log(error)
+	}
 }, [componentDidMount, daiContract, init])
 
 /**
@@ -230,15 +233,19 @@ const loadPmknUnrealizedYield = useCallback(async(user) => {
 
 
 const userDidMount = useCallback(async() => {
-  await loadUser().then(res => {
-      setUserAddress(res)
-      loadEthBalance(res)
-      loadDaiBalance(res)
-      loadPmknBalance(res)
-      loadStakingBalance(res)
-      loadPmknYield(res)
-      loadPmknUnrealizedYield(res)
-  })
+	try{
+		await loadUser().then(res => {
+			setUserAddress(res)
+			loadEthBalance(res)
+			loadDaiBalance(res)
+			loadPmknBalance(res)
+			loadStakingBalance(res)
+			loadPmknYield(res)
+			loadPmknUnrealizedYield(res)
+		})
+	} catch(error) {
+		console.log(error)
+	}
   await loadNetwork()
 }, [
   loadUser, 
@@ -275,7 +282,6 @@ const loadLotteryPool = useCallback(async() => {
 const loadLinkBalance = useCallback(async() => {
   let balance = await linkContract.balanceOf(lotteryContract.address)
   setLinkBalance(ethers.utils.formatEther(balance))
-  console.log(balance.toString())
 }, [lotteryContract, linkContract, setLinkBalance])
 
 const loadLotteryCount = useCallback(async() => {
@@ -289,21 +295,27 @@ const loadWinningNumber = useCallback(async(lottoCount) => {
   setWinningNumber(number.toString())
 }, [setWinningNumber, lotteryContract])
 
-const contractBalanceDidMount = useCallback(async() => {
+const contractStateDidMount = useCallback(async() => {
   await loadOwner()
   await loadLotteryPool()
   await loadLinkBalance()
   await loadLotteryCount()
     .then(async(res) => {
-      loadWinningNumber(res)
+      await loadWinningNumber(res)
     })
-}, [loadOwner, loadLotteryPool, loadLinkBalance, loadLotteryCount, loadWinningNumber])
+}, [
+  loadOwner, 
+  loadLotteryPool, 
+  loadLinkBalance, 
+  loadLotteryCount, 
+  loadWinningNumber, 
+])
 
 useEffect(() => {
   if(init === true){
-    contractBalanceDidMount()
+    contractStateDidMount()
   }
-}, [init, contractBalanceDidMount])
+}, [init, contractStateDidMount])
 
 /**
 * @notice Events ----------------------------------------->
@@ -384,7 +396,7 @@ useEffect(() => {
     <Container>
       <ContractProvider value={contractState}>
         <UserProvider value={userState}>
-          <Main />
+          	<Main />
         </UserProvider>
       </ContractProvider>
     </Container>
