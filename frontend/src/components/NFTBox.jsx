@@ -1,36 +1,53 @@
 import React from "react"
 import styled from "styled-components";
 
-import { useUser } from "../context/UserContext"
-import { useContract } from "../context/ContractContext"
-import { ethers } from "ethers";
-
 const Container = styled.div`
-    height: 15rem;
-    width: 22rem;
-    background-color: #2b2e35;
-    margin-top: 3rem;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     margin: 2rem;
+`;
+
+const Box = styled.div`
+    height: 25rem;
+    width: 22rem;
+    background-color: #2b2e35;
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
     border: .3rem solid black;
 `;
 
+const Title = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+`
+
 const Banner = styled.div`
     width: 100%;
-    height: 33%;
-    background: linear-gradient(45deg, #ED7014, #5f3c74);
+    height: 25%;
+    background: linear-gradient(45deg, #5f3c74, #ED7014);
     display: flex;
     flex-direction: column;
     justify-content: center;
 `;
 
-const ClaimButton = styled.button`
-    height: 5rem;
+const BodyDiv = styled.div`
     width: 100%;
     background-color: black;
     color: #7A3803;
-    font-size: 1.2rem;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`;
+
+const Li = styled.li`
+    margin: .5rem;
 `;
 
 const TopBanner = styled.div`
@@ -62,38 +79,16 @@ const Circle = styled.button`
     align-items: center;
 `;
 
-export default function StakeBox() {
+export default function NFTBox() {
 
-    const {
-        userAddress,
-        pmknBalance
-    } = useUser();
-
-    const {
-        provider,
-        pmknFarmContract,
-        pmknTokenContract
-    } = useContract();
-
-    const URI = "https://gateway.pinata.cloud/ipfs/QmbJ9d3mp88MK3y4djxU8PsG1m8773wbmPA4JHE6mVcTc7"
-
-    const mintJack = async() => {
-        try {
-            let signer = provider.getSigner()
-            let tx = await pmknTokenContract.connect(signer).approve(pmknFarmContract.address, ethers.utils.parseEther("1"))
-            provider.waitForTransaction(tx.hash)
-                .then(async() => {
-                    tx = await pmknFarmContract.connect(signer).mintNFT(userAddress, URI)
-                })
-                return tx
-        } catch (error) {
-            alert(error)
-        }
-    }
 
     
     return(
         <Container>
+            <Title>
+                Mint NFTs
+            </Title>
+        <Box>
             <Banner>
                 <TopBanner>
                     <div>
@@ -102,19 +97,33 @@ export default function StakeBox() {
                 </TopBanner>
             </Banner>
         
-            <div>
-                <ClaimButton onClick={mintJack}>
-                    Mint NFT
-                </ClaimButton>
-                
-            </div>
+            <BodyDiv>
+                <ul>
+                    <Li>
+                        Purchase a Jack-O'-Lantern NFT for 1 PMKN
+                    </Li>
+                    <Li>
+                        Each minted Jack-O'-Lantern NFT doubles as a lottery ticket
+                    </Li>
+                    <Li>
+                        All PMKN goes toward the lottery pool to win back
+                    </Li>
+                    <Li>
+                        Click on the NFT tab above to mint an NFT
+                    </Li>
+                </ul>
+            </BodyDiv>
+
             <Banner>
                 <BottomBanner>
                     <Circle>
-                        Cost: 1 PMKN
+                        <div>
+                            Cost: 1 PMKN
+                        </div>
                     </Circle>
                 </BottomBanner>
             </Banner>
+        </Box>
         </Container>
     )
 }

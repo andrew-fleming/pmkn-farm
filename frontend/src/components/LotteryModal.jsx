@@ -1,7 +1,7 @@
 import React from "react"
 import styled from "styled-components";
 
-//import { useUser } from "../context/UserContext"
+import { useUser } from "../context/UserContext"
 import { useContract } from "../context/ContractContext"
 
 const ModalStyle ={
@@ -9,9 +9,11 @@ const ModalStyle ={
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    backgroundColor: '#FFF',
-    height: '15rem',
-    width: '30rem',
+    backgroundColor: '#2b2e35',
+    borderRadius: '2rem',
+    border: '.3rem solid black',
+    height: '24rem',
+    width: '25rem',
     zIndex: 1000
 }
 
@@ -25,84 +27,116 @@ const OverlayStyle = {
     zIndex: 1000
 }
 
-const Container = styled.div`
+const Container = styled.div` 
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-`;
-
-const Div = styled.div`
-    display: flex;
-    justify-content: center;
-    color: green; 
-    font-size: 1.5rem;
-`;
-
-const Align = styled.div`
-    display: flex;
-    flex-direction: column;
+    justify-content: space-around;
     align-items: center;
 `;
 
+const H1 = styled.h1`
+    background: linear-gradient(45deg, #5f3c74, green);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    -moz-text-fill-color: transparent;
+    -webkit-text-fill-color: transparent;
+`;
+
+const DivBody = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 10rem;
+    width: 18rem;
+    align-items: center;
+    background-color: transparent;
+    border: .1rem solid black;
+    border-radius: 1rem;
+    color: white;
+`;
+
+const Li = styled.li`
+    margin: .6rem;
+`;
+
 const ClaimButton = styled.button`
-    width: 10rem;
+    background: linear-gradient(45deg, #5f3c74, green);
+    font-size: 1.5rem;
+    width: 12rem;
     height: 4rem;
-    margin-top: 1.5rem;
+    cursor: pointer;
+`;
+
+const BottomDiv = styled.div`
+    height: 20%;
 `;
 
 export default function LotteryModal() {
 
-    const displayLottoNum = "Lottery Count: 2"
-    const displayWinningNum = "Winning Number: 5"
-    const displayUserNum = "Your Number(s): 2"
-    const displayWinningAmount = "Lottery Winnings: 25 PMKN"
-
     const {
-        setIsModalOpen,
+        setIsLotteryOpen,
         provider,
-        pmknFarmContract
+        lotteryContract,
+        lotteryBalance,
+        lotteryCount,
+        winningNumber
     } = useContract();
 
-    function closeModal() {
-        setIsModalOpen(false)
+    const {
+        userNFTs
+    } = useUser();
+
+    function closeLotteryModal() {
+        setIsLotteryOpen(false)
     }
 
     const claimWinnings = async() => {
         try {
             let signer = provider.getSigner()
-            let tx = await pmknFarmContract.connect(signer).claimLottery()            
+            let tx = await lotteryContract.connect(signer).claimLottoWinnings()            
             return tx
         } catch (error) {
             alert(error)
         }
     }
-    
 
+    const _winningNumber = winningNumber ? winningNumber : "-"
+    const _lotteryCount = lotteryCount
+    const _userNFTs = userNFTs ? userNFTs : "-"
+    const lotteryPoolAmount = lotteryBalance ? lotteryBalance : "0"
+    
 return(
     
     <>
-        <div style={OverlayStyle} onClick={closeModal}/>
+        <div style={OverlayStyle} onClick={closeLotteryModal}/>
         <div style={ModalStyle}>
             <Container>
-                <Div>
-                    <Align>
-                        <div>
-                            {displayLottoNum}
-                        </div>
-                        <div>
-                            {displayWinningNum}
-                        </div>
-                        <div>
-                            {displayUserNum}
-                        </div>
-                            {displayWinningAmount}
+                    <H1>Lottery</H1>
+                    <DivBody>
+                        <ul>
+                            <Li>
+                                Lottery Count: {_lotteryCount} 
+                            </Li>
+                            <Li>
+                                Winning Number: {_winningNumber}
+                            </Li>
+                            <Li>
+                                Your Number(s): {_userNFTs}
+                            </Li>
+                            <Li>
+                                Lottery Pool: {lotteryPoolAmount} PMKN
+                            </Li>
+                        </ul>
+                        </DivBody>
+                        <BottomDiv>
                         <ClaimButton onClick={claimWinnings}>
                             Claim Winnings
                         </ClaimButton>
-                    </Align>
-                </Div>
+                        </BottomDiv>
+                        
             </Container>
         </div>
         

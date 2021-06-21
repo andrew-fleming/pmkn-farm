@@ -5,6 +5,7 @@ import { ethers } from "ethers"
 import PmknFarm from "./abis/PmknFarm.json"
 import PmknToken from "./abis/PmknToken.json"
 import JackOLantern from "./abis/JackOLantern.json"
+import Lottery from "./abis/Lottery.json"
 import ERC20 from "./abis/ERC20.json"
 
 import { UserProvider } from "./context/UserContext"
@@ -15,7 +16,7 @@ import Main from "./components/Main";
 
 const Container = styled.div`
   width: 100%;
-  height: 50rem;
+  height: 75rem;
 `;
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
   const [stakingBalance, setStakingBalance] = useState("")
   const [pmknYield, setPmknYield] = useState("")
   const [pmknUnrealizedYield, setPmknUnrealizedYield] = useState("")
+  const [userNFTs, setUserNFTs] = useState("")
 
   const userState = {
     userAddress, 
@@ -46,6 +48,8 @@ function App() {
     setPmknYield,
     pmknUnrealizedYield,
     setPmknUnrealizedYield,
+    userNFTs,
+    setUserNFTs,
   }
 
   /**
@@ -55,9 +59,19 @@ function App() {
   const [networkId, setNetworkId] = useState("")
   const [provider, setProvider] = useState({})
   const [daiContract, setDaiContract] = useState({})
+  const [linkContract, setLinkContract] = useState({})
   const [pmknTokenContract, setPmknTokenContract] = useState({})
   const [pmknFarmContract, setPmknFarmContract] = useState({})
   const [jackContract, setJackContract] = useState({})
+  const [lotteryContract, setLotteryContract] = useState({})
+  const [isLotteryOpen, setIsLotteryOpen] = useState(false)
+  const [isNFTOpen, setIsNFTOpen] = useState(false)
+  const [isOwnerOpen, setIsOwnerOpen] = useState(false)
+  const [lotteryBalance, setLotteryBalance] = useState("")
+  const [linkBalance, setLinkBalance] = useState("")
+  const [lotteryCount, setLotteryCount] = useState("")
+  const [owner, setOwner] = useState("")
+  const [winningNumber, setWinningNumber] = useState("")
 
   const contractState = {
     init,
@@ -68,12 +82,32 @@ function App() {
     setProvider,
     daiContract,
     setDaiContract,
+    linkContract,
+    setLinkContract,
     pmknTokenContract,
     setPmknTokenContract,
     pmknFarmContract,
     setPmknFarmContract,
     jackContract,
-    setJackContract
+    setJackContract,
+    lotteryContract,
+    setLotteryContract,
+    isLotteryOpen, 
+    setIsLotteryOpen,
+    isNFTOpen,
+    setIsNFTOpen,
+    isOwnerOpen,
+    setIsOwnerOpen,
+    lotteryBalance,
+    setLotteryBalance,
+    linkBalance,
+    setLinkBalance,
+    lotteryCount,
+    setLotteryCount,
+    owner,
+    setOwner,
+    winningNumber,
+    setWinningNumber,
   }
 
   /**
@@ -87,43 +121,59 @@ function App() {
 }, [setProvider])
 
 const loadDaiContract = useCallback(async(_provider) => {
-    let daiAddress = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa"  // Kovan DAI
+    let daiAddress = "<DAI CONTRACT HERE>" 
     let contract = new ethers.Contract(daiAddress, ERC20.abi, _provider)
     setDaiContract(contract)
 }, [setDaiContract])
 
+const loadLinkContract = useCallback(async(_provider) => {
+  let linkAddress = "<LINK CONTRACT HERE>"
+  let contract = new ethers.Contract(linkAddress, ERC20.abi, _provider)
+  setLinkContract(contract)
+}, [setLinkContract])
+
 const loadPmknToken = useCallback(async(_provider) => {
-    let pmknTokenAddress = "0x5A67113312875395A339bF158E77b7aEca998622" 
+    let pmknTokenAddress = "<PMKNTOKEN CONTRACT HERE>" 
     let contract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, _provider)
     setPmknTokenContract(contract)
 }, [setPmknTokenContract])
 
 const loadPmknFarmContract = useCallback(async(_provider) => {
-    let pmknFarmAddress = "0x21A79e8F883Ea23F6fcbA261aa6Bf4a689E6668B"
+    let pmknFarmAddress = "<PMKNFARM CONTRACT HERE>"
     let contract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, _provider)
     setPmknFarmContract(contract)
 }, [setPmknFarmContract])
 
 const loadJackContract = useCallback(async(_provider) => {
-  let jackContractAddress = "0x57D3932Ed4C082DE446d07A2814173427aF114FE"
+  let jackContractAddress = "<JACKOLANTERN CONTRACT HERE>"
   let contract = new ethers.Contract(jackContractAddress, JackOLantern.abi, _provider)
   setJackContract(contract)
 }, [setJackContract])
 
+const loadLotteryContract = useCallback(async(_provider) => {
+  let lotteryContractAddress = "<LOTTERY CONTRACT HERE>"
+  let contract = new ethers.Contract(lotteryContractAddress, Lottery.abi, _provider)
+  setLotteryContract(contract)
+}, [setLotteryContract])
+
 const componentDidMount = useCallback(async() => {
     await loadProvider().then(async(res) => {
         await loadDaiContract(res)
+        await loadLinkContract(res)
         await loadPmknToken(res)
         await loadPmknFarmContract(res)
         await loadJackContract(res)
+        await loadLotteryContract(res)
     })
     setInit(true)
 }, [
     loadProvider, 
     loadDaiContract, 
+    loadLinkContract,
     loadPmknToken, 
     loadPmknFarmContract, 
     loadJackContract,
+    loadLotteryContract,
     setInit
 ])
 
@@ -209,29 +259,99 @@ useEffect(() => {
 }, [userDidMount, init, userAddress])
 
 /**
+ * @notice Contract balances/state
+ */
+
+const loadOwner = useCallback(async() => {
+  let contractOwner = await lotteryContract.owner()
+  setOwner(contractOwner)
+}, [lotteryContract, setOwner])
+
+const loadLotteryPool = useCallback(async() => {
+  let balance = await pmknTokenContract.balanceOf(lotteryContract.address)
+  setLotteryBalance(ethers.utils.formatEther(balance))
+}, [lotteryContract, pmknTokenContract]) 
+
+const loadLinkBalance = useCallback(async() => {
+  let balance = await linkContract.balanceOf(lotteryContract.address)
+  setLinkBalance(ethers.utils.formatEther(balance))
+  console.log(balance.toString())
+}, [lotteryContract, linkContract, setLinkBalance])
+
+const loadLotteryCount = useCallback(async() => {
+  let count = await lotteryContract.lotteryCount()
+  setLotteryCount(count.toString())
+  return count.toString()
+}, [lotteryContract])
+
+const loadWinningNumber = useCallback(async(lottoCount) => {
+  let number = await lotteryContract.winningNumber(lottoCount)
+  setWinningNumber(number.toString())
+}, [setWinningNumber, lotteryContract])
+
+const contractBalanceDidMount = useCallback(async() => {
+  await loadOwner()
+  await loadLotteryPool()
+  await loadLinkBalance()
+  await loadLotteryCount()
+    .then(async(res) => {
+      loadWinningNumber(res)
+    })
+}, [loadOwner, loadLotteryPool, loadLinkBalance, loadLotteryCount, loadWinningNumber])
+
+useEffect(() => {
+  if(init === true){
+    contractBalanceDidMount()
+  }
+}, [init, contractBalanceDidMount])
+
+/**
 * @notice Events ----------------------------------------->
 */
 
 useEffect(() => {
   if(userAddress !== ""){
+    /**
+     * @notice PmknFarm Events
+     */
       pmknFarmContract.on("Stake", async(userAddress) => {
-          loadDaiBalance(userAddress)
-          loadStakingBalance(userAddress)
+          await loadDaiBalance(userAddress)
+          await loadStakingBalance(userAddress)
       });
 
       pmknFarmContract.on("Unstake", async(userAddress) => {
-          loadDaiBalance(userAddress)
-          loadStakingBalance(userAddress)
+          await loadDaiBalance(userAddress)
+          await loadStakingBalance(userAddress)
       })
 
       pmknFarmContract.on("YieldWithdraw", async(userAddress) => {
-          loadPmknUnrealizedYield(userAddress)
-          loadPmknYield(userAddress)
-          loadPmknBalance(userAddress)
+          await loadPmknUnrealizedYield(userAddress)
+          await loadPmknYield(userAddress)
+          await loadPmknBalance(userAddress)
       })
 
       pmknFarmContract.on("MintNFT", async(userAddress) => {
-        loadPmknBalance(userAddress)
+        await loadPmknBalance(userAddress)
+      })
+
+      /**
+       * @notice Lottery events
+       */
+
+      lotteryContract.on("NumberReceived", async(userAddress) => {
+        await loadLotteryCount()
+          .then(async(res) => {
+        await loadWinningNumber(res)
+    })
+      })
+
+      lotteryContract.on("LotteryClaim", async(userAddress) => {
+        await loadPmknBalance(userAddress)
+        await loadLotteryPool()
+      })
+
+      lotteryContract.on("WithdrawLink", async(userAddress) => {
+        await loadLinkBalance()
       })
   }
 
@@ -247,11 +367,17 @@ useEffect(() => {
   pmknFarmContract, 
   userAddress, 
   stakingBalance,
+  lotteryContract,
   loadDaiBalance, 
   loadStakingBalance,
   loadPmknUnrealizedYield,
   loadPmknYield,
-  loadPmknBalance
+  loadPmknBalance,
+  loadWinningNumber,
+  loadLotteryContract,
+  loadLinkBalance,
+  loadLotteryCount,
+  loadLotteryPool,
 ])
 
   return (

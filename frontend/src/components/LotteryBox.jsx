@@ -2,7 +2,7 @@ import React from "react"
 import styled from "styled-components";
 
 //import { useUser } from "../context/UserContext"
-//import { useContract } from "../context/ContractContext"
+import { useContract } from "../context/ContractContext"
 
 const Container = styled.div`
     display: flex;
@@ -12,7 +12,7 @@ const Container = styled.div`
 `;
 
 const Box = styled.div`
-    height: 15rem;
+    height: 25rem;
     width: 22rem;
     background-color: #2b2e35;
     display: flex;
@@ -31,23 +31,26 @@ const Title = styled.div`
 
 const Banner = styled.div`
     width: 100%;
-    height: 33%;
+    height: 25%;
     background: linear-gradient(45deg, #5f3c74, green);
     display: flex;
     flex-direction: column;
     justify-content: center;
 `;
 
-const TimeDiv = styled.div`
-    height: 5rem;
+const BodyDiv = styled.div`
     width: 100%;
     background-color: black;
     color: #7A3803;
-    font-size: 1.6rem;
+    font-size: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+`;
+
+const Li = styled.li`
+    margin: .5rem;
 `;
 
 const TopBanner = styled.div`
@@ -81,6 +84,9 @@ const Circle = styled.button`
 
 export default function LotteryBox() {
 
+    const {
+        lotteryBalance,
+    } = useContract();
     
     return(
         <Container>
@@ -91,21 +97,34 @@ export default function LotteryBox() {
             <Banner>
                 <TopBanner>
                     <div>
-                        Jack-O-Lottery
+                        Jack-O'-Lottery
                     </div>
                 </TopBanner>
             </Banner>
         
-            <TimeDiv>
-                Finished
-            </TimeDiv>
+            <BodyDiv>
+                <ul>
+                    <Li>
+                        Each minted Jack-O'-Lantern NFT doubles as a lottery ticket
+                    </Li>
+                    <Li>
+                        The tokenId of the JACK NFT is your lottery ticket number
+                    </Li>
+                    <Li>
+                        Winning number is verifiably random using Chainlink's VRF
+                    </Li>
+                    <Li>
+                        Click on the Lottery tab above to see the results of the latest lottery
+                    </Li>
+                </ul>
+            </BodyDiv>
 
             <Banner>
                 <BottomBanner>
                     <Circle>
                         Prize Pool: 
                         <div>
-                            0 PMKN
+                            {lotteryBalance ? lotteryBalance : "0"} PMKN
                         </div>
                     </Circle>
                 </BottomBanner>

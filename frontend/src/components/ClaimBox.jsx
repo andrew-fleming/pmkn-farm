@@ -6,15 +6,29 @@ import { useUser } from "../context/UserContext"
 import { useContract } from "../context/ContractContext"
 
 const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 2rem;
+`;
+
+const Box = styled.div`
     height: 15rem;
     width: 22rem;
     background-color: #2b2e35;
-    margin-top: 3rem;
     display: flex;
     flex-direction: column;
-    margin: 2rem;
+    margin-top: 1rem;
     border: .3rem solid black;
 `;
+
+const Title = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+`
 
 const Banner = styled.div`
     width: 100%;
@@ -31,6 +45,7 @@ const ClaimButton = styled.button`
     background-color: black;
     color: #7A3803;
     font-size: 1.2rem;
+    cursor: pointer;
 `;
 
 const TopBanner = styled.div`
@@ -89,6 +104,10 @@ export default function StakeBox() {
 
     return(
         <Container>
+            <Title>
+                Claim Rewards
+            </Title>
+        <Box>
             <Banner>
                 <TopBanner>
                     <div>
@@ -112,6 +131,7 @@ export default function StakeBox() {
 
                 </BottomBanner>
             </Banner>
+        </Box>
         </Container>
     )
 }

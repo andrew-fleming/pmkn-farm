@@ -1,8 +1,13 @@
-import React from "react"
+import React from "react";
 import styled from "styled-components";
 
-import NavBar from "./NavBar"
-import MainCard from "./MainCard"
+import { useContract } from "../context/ContractContext"; 
+
+import NavBar from "./NavBar";
+import MainCard from "./MainCard";
+import LotteryModal from "./LotteryModal";
+import NFTModal from "./NFTModal"
+import OwnerModal from "./OwnerModal"
 
 
 const Container = styled.div`
@@ -12,11 +17,23 @@ const Container = styled.div`
 `;
 
 export default function Main() {
+
+    const {
+        isLotteryOpen,
+        isNFTOpen,
+        isOwnerOpen
+    } = useContract();
+
+    
+
     
     return(
         <>
         <NavBar />
         <Container>
+            {isLotteryOpen ? <LotteryModal /> : null}
+            {isNFTOpen ? <NFTModal /> : null}
+            {isOwnerOpen ? < OwnerModal/> : null}
             <MainCard />
         </Container>
         </>
