@@ -126,19 +126,23 @@ export default function NavBar() {
     }, [lotteryCount, lotteryContract, setWinningNumber])
 
     const loadUserNumbers = useCallback(async() => {
-        let nftString = ""
-        let total = await jackContract.balanceOf(userAddress)
-        let i = 0
-        while(i < total){
-            let nfts = await jackContract.tokenOfOwnerByIndex(userAddress, i)
-            if (nftString === ""){
-                nftString = nfts.toString()
-            } else {
-                nftString += `, ${nfts.toString()}`
+        try {
+            let nftString = ""
+            let total = await jackContract.balanceOf(userAddress)
+            let i = 0
+            while(i < total){
+                let nfts = await jackContract.tokenOfOwnerByIndex(userAddress, i)
+                if (nftString === ""){
+                    nftString = nfts.toString()
+                } else {
+                    nftString += `, ${nfts.toString()}`
+                }
+                i++
             }
-            i++
+            setUserNFTs(nftString)
+        } catch (error) {
+            console.log(error)
         }
-        setUserNFTs(nftString)
     }, [jackContract, userAddress, setUserNFTs])
 
     /**
@@ -146,7 +150,11 @@ export default function NavBar() {
      */
 
     async function handleLottery() {
-        loadWinningNumber()
+        try{
+            await loadWinningNumber()
+        } catch (error) {
+            console.log("Lottery not initiated", error)
+        }
         await loadUserNumbers()
         setIsLotteryOpen(!isLotteryOpen)
     }

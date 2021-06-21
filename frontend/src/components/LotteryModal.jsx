@@ -89,7 +89,7 @@ export default function LotteryModal() {
         userNFTs
     } = useUser();
 
-    function closeLotteryModal() {
+    const closeLotteryModal = () => {
         setIsLotteryOpen(false)
     }
 
@@ -104,7 +104,7 @@ export default function LotteryModal() {
     }
 
     const _winningNumber = winningNumber ? winningNumber : "-"
-    const _lotteryCount = lotteryCount
+    const _lotteryCount = lotteryCount ? lotteryCount : "0"
     const _userNFTs = userNFTs ? userNFTs : "-"
     const lotteryPoolAmount = lotteryBalance ? lotteryBalance : "0"
     
