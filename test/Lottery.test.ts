@@ -29,10 +29,10 @@ describe("Lottery Contract", () => {
         let lotteryParams = [
             pmknToken.address,
             mockLink.address,
-            "0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9",
-            "0xa36085F69e2889c224210F603D836748e7dC0088",
-            1, 
-            "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4"
+            "0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9", // coor
+            "0xa36085F69e2889c224210F603D836748e7dC0088", // link
+            1, // fee
+            "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4" // keyHash
         ];
         jackContract = await JackContract.deploy();
         lottery =  await Lottery.deploy(jackContract.address, ...lotteryParams);
@@ -112,13 +112,26 @@ describe("Lottery Contract", () => {
             await lottery.testGetWinningNumber()
             expect(await lottery.lotteryCount())
                 .to.eq(1)
-            let reqId = await lottery.requestId()
+            let reqId = await lottery.__requestId()
             expect(await lottery.requestIdToCount(reqId))
                 .to.eq(0)
             expect(await lottery.winningNumber(0))
                 .to.eq(3)
             expect(await jackContract.tokenOfOwnerByIndex(alice.address, 0))
                 .to.eq(0)
+        })
+
+        it("should show alice as winner", async() => {
+            await lottery.testGetWinningNumber0()
+            expect(await lottery.lotteryCount())
+                .to.eq(1)
+            let reqId = await lottery.__requestId()
+            expect(await lottery.winningNumber(reqId))
+                .to.eq(0)
+            expect(await jackContract.tokenOfOwnerByIndex(alice.address, 0))
+                .to.eq(0)
+            expect(await lottery.connect(alice).claimLottoWinnings())
+                .to.be.ok
         })
 
         it("should payout bob", async() => {
@@ -167,7 +180,7 @@ describe("Lottery Contract", () => {
         })
 
         it("should emit NumberReceived", async() => {
-            let _requestId = await lottery.requestId()
+            let _requestId = await lottery.__requestId()
             expect(await lottery.testGetWinningNumber())
                 .to.emit(lottery, "NumberReceived")
                 .withArgs(_requestId, 3)
