@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PmknToken.sol";
 import "./JackOLantern.sol";
+import "./Lottery.sol";
 
 /// @title Pmkn Farm
 /// @author Andrew Fleming
@@ -24,16 +25,16 @@ contract PmknFarm {
     // userAddress => pmknBalance
     mapping(address => uint256) public pmknBalance;
     // tokenURI => nftCount
-    mapping(string => uint256) public nftCount;
+    mapping(string => uint256) public nftCount;    
 
     string public name = "Pmkn Farm";
 
     IERC20 public daiToken;
     PmknToken public pmknToken;
     JackOLantern public jackOLantern;
+    Lottery public lottery;
 
     uint256 private nftPrice;
-    uint256 public contractPmknBalance;
 
     event Stake(address indexed from, uint256 amount);
     event Unstake(address indexed from, uint256 amount);
@@ -44,11 +45,13 @@ contract PmknFarm {
         IERC20 _daiToken,
         PmknToken _pmknToken,
         JackOLantern _jackOLantern,
+        Lottery _lottery,
         uint256 _nftPrice
         ) {
             daiToken = _daiToken;
             pmknToken = _pmknToken;
             jackOLantern = _jackOLantern;
+            lottery = _lottery;
             nftPrice = _nftPrice;
         }
 
@@ -107,7 +110,7 @@ contract PmknFarm {
     /// @notice Calculates the user's yield while using a 86400 second rate (for 100% returns in 24 hours)
     /// @dev Solidity does not compute fractions or decimals; therefore, time is multiplied by 10e18
     ///      before it's divided by the rate. rawYield thereafter divides the product back by 10e18
-    /// @param user The user
+    /// @param user The address of the user
     function calculateYieldTotal(address user) public view returns(uint256) {
         uint256 time = calculateYieldTime(user) * 10**18;
         uint256 rate = 86400;
@@ -139,19 +142,23 @@ contract PmknFarm {
         emit YieldWithdraw(msg.sender, toTransfer);
     } 
 
-    /// @notice
-    /// @dev 
-    /// @param user g
-    /// @param tokenURI g
+    /// @notice Calls the mintItem fuction from the JackOLantern contract which safeMints
+    ///         an NFT for the user
+    /// @dev Calls Lottery's addToLotteryPool function which is hardcoded to transfer
+    ///      1 PMKN from the user to the Lottery contract (will add parameter to allow
+    ///      for dynamically pricing NFTs). Calls the mintItem function from JackOLantern's
+    ///      contract which invokes the ERC721 safeMint function. Updates nftCount mapping
+    /// @param user The address of the user
+    /// @param tokenURI The Uniform Resource Identifier (URI) for tokenId token
     function mintNFT(address user, string memory tokenURI) public {
         require(
             pmknToken.balanceOf(msg.sender) >= nftPrice, 
             "Not enough PMKN"
         );
-        pmknToken.transferFrom(msg.sender, address(this), nftPrice);
+        lottery.addToLotteryPool(msg.sender, nftPrice);
         uint256 tokenId = jackOLantern.mintItem(user, tokenURI);
         nftCount[tokenURI]++;
-        contractPmknBalance += nftPrice;
         emit MintNFT(msg.sender, tokenId);
     }
+
 }

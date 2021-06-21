@@ -4,6 +4,10 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
+/// @title PmknToken
+/// @author Andrew Fleming
+/// @notice g
+/// @dev g
 contract PmknToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
@@ -12,7 +16,7 @@ contract PmknToken is ERC20, AccessControl {
     }
 
     function mint(address to, uint256 amount) public {
-        require(hasRole(MINTER_ROLE, msg.sender));
+        require(hasRole(MINTER_ROLE, msg.sender), "Caller is not the minter");
         _mint(to, amount);
     }
 }
