@@ -7,15 +7,29 @@ import { useUser } from "../context/UserContext"
 import { useContract } from "../context/ContractContext"
 
 const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 2rem;
+`;
+
+const Box = styled.div`
     height: 15rem;
     width: 22rem;
     background-color: #2b2e35;
-    margin-top: 3rem;
     display: flex;
     flex-direction: column;
-    margin: 2rem;
+    margin-top: 1rem;
     border: .3rem solid black;
 `;
+
+const Title = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+`
 
 const Img = styled.img`
     height: 1.5rem;
@@ -43,6 +57,7 @@ const StakeButton = styled.button`
     background-color: black;
     color: #7A3803;
     font-size: 1.2rem;
+    cursor: pointer;
 `;
 
 const AlignInput = styled.div`
@@ -133,44 +148,49 @@ export default function StakeBox() {
 
     return(
         <Container>
-            <Banner>
-                <TopBanner>
-                <Img src={MarkDai} alt="DAI logo"/>
-                        DAI (1 PMKN / Day)
-                </TopBanner>
-            </Banner>
-            <AlignInput>
-                <StakeInput 
-                    onChange={handleTransfer} 
-                    placeholder="Input Amount"
-                />
-            </AlignInput>
-            <div>
-                <StakeButton onClick={stake}>
-                    Stake
-                </StakeButton>
-                <StakeButton onClick={unstake}>
-                    Unstake
-                </StakeButton>
-            </div>
-            <Banner>
-                <BottomBanner>
-                </BottomBanner>
-                <BottomBanner>
-                    <Circle>
-                        Unstaked:
-                        <div>
-                            { daiBalance ? ethers.utils.formatEther(daiBalance) : "0" }
-                        </div>
-                    </Circle>
-                    <Circle>
-                        Staked:
-                        <div>
-                            { stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0" }
-                        </div>
-                    </Circle>
-                </BottomBanner>
-            </Banner>
+            <Title>
+                Stake/Unstake
+            </Title>
+            <Box>
+                <Banner>
+                    <TopBanner>
+                    <Img src={MarkDai} alt="DAI logo"/>
+                            DAI (1 PMKN / Day)
+                    </TopBanner>
+                </Banner>
+                <AlignInput>
+                    <StakeInput 
+                        onChange={handleTransfer} 
+                        placeholder="Input Amount"
+                    />
+                </AlignInput>
+                <div>
+                    <StakeButton onClick={stake}>
+                        Stake
+                    </StakeButton>
+                    <StakeButton onClick={unstake}>
+                        Unstake
+                    </StakeButton>
+                </div>
+                <Banner>
+                    <BottomBanner>
+                    </BottomBanner>
+                    <BottomBanner>
+                        <Circle>
+                            Unstaked:
+                            <div>
+                                { daiBalance ? ethers.utils.formatEther(daiBalance) : "0" }
+                            </div>
+                        </Circle>
+                        <Circle>
+                            Staked:
+                            <div>
+                                { stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0" }
+                            </div>
+                        </Circle>
+                    </BottomBanner>
+                </Banner>
+            </Box>
         </Container>
     )
 }

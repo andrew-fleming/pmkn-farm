@@ -22,21 +22,35 @@ describe("PmknFarm Contract", () => {
     let mockDai: Contract;
     let pmknToken: Contract;
     let jackOLantern: Contract;
+    let lottery: Contract;
 
     const daiAmount: BigNumber = ethers.utils.parseEther("25000");
     const nftPrice: BigNumber = ethers.utils.parseEther("1")
 
     before(async() => {
         const PmknFarm = await ethers.getContractFactory("PmknFarm");
-        const MockDai = await ethers.getContractFactory("MockDai");
+        const MockERC20 = await ethers.getContractFactory("MockERC20");
         const PmknToken = await ethers.getContractFactory("PmknToken");
         const JackOLantern = await ethers.getContractFactory("JackOLantern");
+        const Lottery = await ethers.getContractFactory("Lottery");
 
         [owner, alice, bob, carol, dave, eve] = await ethers.getSigners();
 
-        mockDai = await MockDai.deploy()
+        mockDai = await MockERC20.deploy("MockDai", "mDAI")
         pmknToken =  await PmknToken.deploy()
         jackOLantern = await JackOLantern.deploy()
+
+        const lottoConfig = [
+            jackOLantern.address,
+            pmknToken.address,
+            "0xa36085F69e2889c224210F603D836748e7dC0088",
+            "0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9", // Coordinator
+            "0xa36085F69e2889c224210F603D836748e7dC0088", // LINK address
+            ethers.utils.parseEther(".1"), // VRF price
+            "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4" // KeyHash
+        ]
+
+        lottery = await Lottery.deploy(...lottoConfig)
 
         /*//////////////////////
         // Dai Transfers      //
@@ -55,6 +69,7 @@ describe("PmknFarm Contract", () => {
             mockDai.address,
             pmknToken.address,
             jackOLantern.address,
+            lottery.address,
             nftPrice
         ]
 
@@ -157,13 +172,11 @@ describe("PmknFarm Contract", () => {
         })
 
         it("should transfer ownership", async() => {
-            expect(await pmknToken.owner())
-                .to.eq(owner.address)
+            let minter = await pmknToken.MINTER_ROLE()
+            await pmknToken.grantRole(minter, pmknFarm.address)
 
-            await pmknToken._transferOwnership(pmknFarm.address)
-
-            expect(await pmknToken.owner())
-                .to.eq(pmknFarm.address)
+            expect(await pmknToken.hasRole(minter, pmknFarm.address))
+                .to.eq(true)
         })
     })
 })
@@ -177,37 +190,52 @@ describe("Start from deployment for time increase", () => {
     let pmknFarm: Contract
     let pmknToken: Contract
     let jackOLantern: Contract
+    let lottery: Contract
 
     beforeEach(async() => {
         // Bare-boned initial deployment setup
         const PmknFarm = await ethers.getContractFactory("PmknFarm");
-        const MockDai = await ethers.getContractFactory("MockDai");
+        const MockERC20 = await ethers.getContractFactory("MockERC20");
         const PmknToken = await ethers.getContractFactory("PmknToken");
         const JackOLantern = await ethers.getContractFactory("JackOLantern");
+        const Lottery = await ethers.getContractFactory("Lottery");
         [alice] = await ethers.getSigners();
-        mockDai = await MockDai.deploy()
+        mockDai = await MockERC20.deploy("MockDai", "mDAI")
         pmknToken =  await PmknToken.deploy()
         jackOLantern = await JackOLantern.deploy()
+        let lottoConfig = [
+            jackOLantern.address,
+            pmknToken.address,
+            "0xa36085F69e2889c224210F603D836748e7dC0088",
+            "0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9", // Coordinator
+            "0xa36085F69e2889c224210F603D836748e7dC0088", // LINK address
+            ethers.utils.parseEther(".1"), // VRF price
+            "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4" // KeyHash
+        ]
+        lottery = await Lottery.deploy(...lottoConfig)
         const daiAmount: BigNumber = ethers.utils.parseEther("25000");
         const nftPrice: BigNumber = ethers.utils.parseEther("1")
-        await mockDai.mint(alice.address, daiAmount),
+        await mockDai.mint(alice.address, daiAmount)
         pmknFarm = await PmknFarm.deploy(
             mockDai.address, 
             pmknToken.address, 
             jackOLantern.address, 
+            lottery.address,
             nftPrice
             )
-        await pmknToken._transferOwnership(pmknFarm.address)
+        let minter = await pmknToken.MINTER_ROLE()
+        await pmknToken.grantRole(minter, pmknFarm.address)
+
+        let jackMinter = await jackOLantern.MINTER_ROLE()
+        await jackOLantern.grantRole(jackMinter, pmknFarm.address)
+
+        let toTransfer = ethers.utils.parseEther("10")
+        await mockDai.approve(pmknFarm.address, toTransfer)
+        await pmknFarm.stake(toTransfer)
     })
 
     describe("Yield", async() => {
         it("should return correct yield time", async() => {
-            // Setup
-            let toTransfer = ethers.utils.parseEther("10")
-            await mockDai.approve(pmknFarm.address, toTransfer)
-            await pmknFarm.stake(toTransfer)
-
-            // Start time
             let timeStart = await pmknFarm.startTime(alice.address)
             expect(Number(timeStart))
                 .to.be.greaterThan(0)
@@ -220,11 +248,6 @@ describe("Start from deployment for time increase", () => {
         })
 
         it("should mint correct token amount in total supply and user", async() => { 
-            // Setup
-            let toTransfer = ethers.utils.parseEther("10")
-            await mockDai.approve(pmknFarm.address, toTransfer)
-            await pmknFarm.stake(toTransfer)
-
             await time.increase(86400)
 
             let _time = await pmknFarm.calculateYieldTime(alice.address)
@@ -253,12 +276,6 @@ describe("Start from deployment for time increase", () => {
         })
 
         it("should update yield balance when unstaked", async() => {
-            let toTransfer = ethers.utils.parseEther("10")
-            await mockDai.approve(pmknFarm.address, toTransfer)
-            await pmknFarm.stake(toTransfer)
-
-            let staked = await pmknFarm.stakingBalance(alice.address)
-
             await time.increase(86400)
             await pmknFarm.unstake(ethers.utils.parseEther("5"))
 
@@ -270,13 +287,9 @@ describe("Start from deployment for time increase", () => {
 
     describe("Multiple Stakes", async() => {
         it("should update yield balance after multiple stakes", async() => {
-            let toTransfer = ethers.utils.parseEther("10")
-            await mockDai.approve(pmknFarm.address, toTransfer)
-            await pmknFarm.stake(toTransfer)
-
             time.increase(8640)
 
-            toTransfer = ethers.utils.parseEther("10")
+            let toTransfer = ethers.utils.parseEther("10")
             await mockDai.approve(pmknFarm.address, toTransfer)
             await pmknFarm.stake(toTransfer)
 
@@ -285,6 +298,45 @@ describe("Start from deployment for time increase", () => {
 
             expect(Number.parseFloat(formatRes).toFixed(3))
                 .to.eq("1.000")
+        })
+    })
+
+    describe("NFT", async() => {
+        it("should mint an nft", async() => {
+            time.increase(10000000)
+
+            await pmknFarm.withdrawYield()
+
+            let toTransfer = ethers.utils.parseEther("1")
+            
+            await pmknToken.approve(lottery.address, toTransfer)
+            await pmknFarm.mintNFT(alice.address, "www")
+
+            await pmknToken.approve(lottery.address, toTransfer)
+            expect(await pmknFarm.mintNFT(alice.address, "www"))
+                .to.emit(pmknFarm, "MintNFT")
+                .withArgs(alice.address, 1)
+
+            await pmknToken.approve(lottery.address, toTransfer)
+            expect(await pmknFarm.mintNFT(alice.address, "www"))
+                .to.emit(pmknFarm, "MintNFT")
+                .withArgs(alice.address, 2)
+        })
+
+        it("should update nftCount", async() => {
+            time.increase(1000000)
+
+            await pmknFarm.withdrawYield()
+
+            res = await pmknFarm.nftCount("www")
+            expect(res).to.eq(0)
+
+            let toTransfer = ethers.utils.parseEther("1")
+            await pmknToken.approve(lottery.address, toTransfer)
+            await pmknFarm.mintNFT(alice.address, "www")
+
+            res = await pmknFarm.nftCount("www")
+            expect(res).to.eq(1)
         })
     })
 
@@ -309,10 +361,9 @@ describe("Start from deployment for time increase", () => {
         })
 
         it("should emit YieldWithdraw", async() => {
-            let toTransfer = ethers.utils.parseEther("10")
-            await mockDai.approve(pmknFarm.address, toTransfer)
-            await pmknFarm.stake(toTransfer)
             await time.increase(86400)
+
+            let toTransfer = ethers.utils.parseEther("10")
             await pmknFarm.unstake(toTransfer)
 
             res = await pmknFarm.pmknBalance(alice.address)
@@ -323,18 +374,15 @@ describe("Start from deployment for time increase", () => {
         })
 
         it("should emit MintNFT event", async() => {
-            let toTransfer = ethers.utils.parseEther("10")
-            await mockDai.approve(pmknFarm.address, toTransfer)
-            await pmknFarm.stake(toTransfer)
             await time.increase(86400)
 
             await pmknFarm.withdrawYield()
 
-            toTransfer = ethers.utils.parseEther("1")
-            await pmknToken.approve(pmknFarm.address, toTransfer)
+            let toTransfer = ethers.utils.parseEther("1")
+            await pmknToken.approve(lottery.address, toTransfer)
             expect(await pmknFarm.mintNFT(alice.address, "www"))
                 .to.emit(pmknFarm, "MintNFT")
-                .withArgs(alice.address, 1)
+                .withArgs(alice.address, 0)
         })
     })
 })
