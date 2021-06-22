@@ -1,10 +1,9 @@
 import { ethers } from "hardhat";
-import chai, { expect} from "chai";
+import { expect} from "chai";
 import { Contract } from "ethers";
-import { solidity } from "ethereum-waffle";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-chai.use(solidity)
+
 
 describe("PmknToken Contract", () => {
 
@@ -21,7 +20,7 @@ describe("PmknToken Contract", () => {
 
         [owner, alice, bob] = await ethers.getSigners();
 
-        pmknToken =  await PmknToken.deploy()
+        pmknToken = await PmknToken.deploy()
         differentContract = await DifferentContract.deploy()
     })
 
@@ -42,10 +41,12 @@ describe("PmknToken Contract", () => {
         })
     })
 
-    describe("Test owner functions", async() => {
+    describe("Test minter role", async() => {
         it("should confirm deployer as owner", async() => {
-            expect(await pmknToken.owner())
-                .to.eq(owner.address)
+            let minter = await pmknToken.MINTER_ROLE()
+        await pmknToken.grantRole(minter, owner.address)
+            expect(await pmknToken.hasRole(minter, owner.address))
+                .to.eq(true)
         })
 
         it("should mint tokens from owner", async() => {
@@ -62,34 +63,15 @@ describe("PmknToken Contract", () => {
                 .to.eq(50)
         })
 
-        //it("should burn tokens", async() => {
-        //    await pmknToken.burn(owner.address, 25)
-        //    expect(await pmknToken.totalSupply())
-        //        .to.eq(25)
-        //})
-
-        it("should revert mint from non-owner", async() => {
+        it("should revert mint from non-minter", async() => {
             await expect(pmknToken.connect(alice).mint(alice.address, 20))
-                .to.be.revertedWith("caller is not the owner")
+                .to.be.reverted
         })
 
-        it("should revert transfer from non-owner", async() => {
-            await expect(pmknToken.connect(alice)._transferOwnership(bob.address))
-                .to.be.revertedWith("caller is not the owner")
-        })
-
-        it("should transfer ownership", async() => {
-            await pmknToken._transferOwnership(alice.address)
-
-            expect(await pmknToken.owner())
-                .to.eq(alice.address)
-        })
-
-        it("should transfer ownership to 'differentContract'", async() => {
-            await pmknToken.connect(alice)._transferOwnership(differentContract.address)
-
-            expect(await pmknToken.owner())
-                .to.eq(differentContract.address)
+        it("should revert transfer from non-admin", async() => {
+            let minter = await pmknToken.MINTER_ROLE()
+          await expect(pmknToken.connect(alice).grantRole(minter, alice.address))
+            .to.be.reverted
         })
     })
 })

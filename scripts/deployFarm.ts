@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { mainConfig } from "./config";
+import { mainConfig, lottoConfig } from "./config";
 
 const nftPrice = ethers.utils.parseEther("1")
 
@@ -11,7 +11,7 @@ async function main() {
     console.log(`Account balance: ${balance.toString()}`)
 
     /**
-     * @notice For tetsnets without Maker/DAI
+     * @notice For testnets without Maker/DAI
      * @dev Comment out if using a network with DAI (ie Kovan) and use/insert
      *      DAI address in config.ts
      */
@@ -26,9 +26,14 @@ async function main() {
     const jackOLantern = await JackOLantern.deploy()
     console.log(`JackOLantern address: ${jackOLantern.address}`)
 
+    const Lottery = await ethers.getContractFactory("Lottery");
+    const lottery = await Lottery.deploy(jackOLantern.address, pmknToken.address, ...lottoConfig);
+    console.log(`Lottery contract address: ${lottery.address}`);
+
     const PmknFarm = await ethers.getContractFactory("PmknFarm");
     const pmknFarm = await PmknFarm.deploy(
-        ...mainConfig, pmknToken.address, jackOLantern.address, nftPrice
+        ...mainConfig, pmknToken.address, jackOLantern.address, lottery.address, nftPrice
+        //...mainConfig, pmknToken.address, jackOLantern.address, nftPrice
         // mockDai.address, pmknToken.address, jackOLantern.address, nftPrice
         )
     console.log(`PmknFarm address: ${pmknFarm.address}`)

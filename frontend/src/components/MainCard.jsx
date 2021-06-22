@@ -4,7 +4,8 @@ import { ethers } from "ethers";
 
 import StakeBox from "./StakeBox"
 import ClaimBox from "./ClaimBox"
-import JackBox from "./JackBox"
+import NFTBox from "./NFTBox"
+import LotteryBox from "./LotteryBox"
 
 import { useUser } from "../context/UserContext"
 
@@ -14,7 +15,7 @@ const Container = styled.div`
 `;
 
 const Card = styled.div`
-    height: 45rem;
+    height: 60rem;
     width: 60rem;
     background-color: #5f5d5d;
     margin-top: 3rem;
@@ -60,7 +61,10 @@ export default function MainCard() {
                     <StakeBox />
                     <ClaimBox />
                 </AlignBox>
-                <JackBox />
+                <AlignBox>
+                    <NFTBox />
+                    <LotteryBox />
+                </AlignBox>
             </Card>
         </Container>
     )

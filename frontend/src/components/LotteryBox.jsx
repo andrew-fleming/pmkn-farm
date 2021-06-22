@@ -1,8 +1,6 @@
 import React from "react"
 import styled from "styled-components";
-import { ethers } from "ethers";
 
-import { useUser } from "../context/UserContext"
 import { useContract } from "../context/ContractContext"
 
 const Container = styled.div`
@@ -13,7 +11,7 @@ const Container = styled.div`
 `;
 
 const Box = styled.div`
-    height: 15rem;
+    height: 25rem;
     width: 22rem;
     background-color: #2b2e35;
     display: flex;
@@ -32,43 +30,49 @@ const Title = styled.div`
 
 const Banner = styled.div`
     width: 100%;
-    height: 33%;
-    background: linear-gradient(45deg, #2d1b38, #5f3c74);
+    height: 25%;
+    background: linear-gradient(45deg, #5f3c74, green);
     display: flex;
     flex-direction: column;
     justify-content: center;
 `;
 
-const ClaimButton = styled.button`
-    height: 5rem;
+const BodyDiv = styled.div`
     width: 100%;
     background-color: black;
     color: #7A3803;
-    font-size: 1.2rem;
-    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`;
+
+const Li = styled.li`
+    margin: .5rem;
 `;
 
 const TopBanner = styled.div`
     align-self: center;
     font-size: 1.65rem;
     font-weight: bold;
-    color: green;
-    text-shadow: .03rem .03rem #ED7014;
+    color: black;
+    text-shadow: .03rem .03rem gray;
 `;
 
 const BottomBanner = styled.div`
     align-self: center;
-    font-size: 1rem;
+    font-size: 1.4rem;
     font-weight: bold;
 `;
 
 const Circle = styled.button`
     width: 12rem;
     height: 4rem;
-    border: .05rem dashed #ED7014;
+    border: .05rem dashed white;
     border-radius: 1rem;
     background-color: transparent;
-    color: yellow;
+    color: black;
     font-size: 1rem;
     font-weight: bold;
     display: flex;
@@ -77,53 +81,50 @@ const Circle = styled.button`
     align-items: center;
 `;
 
-export default function StakeBox() {
+export default function LotteryBox() {
 
     const {
-        stakingBalance,
-        pmknYield,
-        pmknUnrealizedYield,
-    } = useUser();
-
-    const {
-        provider,
-        pmknFarmContract
+        lotteryBalance,
     } = useContract();
-
-    /**
-     * @notice Calls the withdrawYield function
-     */
-    const withdrawYield = async() => {
-        let signer = provider.getSigner()
-        let tx = await pmknFarmContract.connect(signer).withdrawYield()
-        return tx
-    }
     
-    const accruing = pmknYield / 1e18
-    const unrealized = pmknUnrealizedYield ? pmknUnrealizedYield / 1e18 : 0
-
     return(
         <Container>
             <Title>
-                Claim Rewards
+                Lottery
             </Title>
         <Box>
             <Banner>
                 <TopBanner>
                     <div>
-                        { parseFloat(accruing + unrealized).toFixed(3) } PMKN
+                        Jack-O'-Lottery
                     </div>
                 </TopBanner>
             </Banner>
-            <div>
-                <ClaimButton onClick={withdrawYield}>
-                    Claim
-                </ClaimButton>
-            </div>
+        
+            <BodyDiv>
+                <ul>
+                    <Li>
+                        Each minted Jack-O'-Lantern NFT doubles as a lottery ticket
+                    </Li>
+                    <Li>
+                        The tokenId of the JACK NFT is your lottery ticket number
+                    </Li>
+                    <Li>
+                        Winning number is verifiably random using Chainlink's VRF
+                    </Li>
+                    <Li>
+                        Click on the Lottery tab above to see the results of the latest lottery
+                    </Li>
+                </ul>
+            </BodyDiv>
+
             <Banner>
                 <BottomBanner>
                     <Circle>
-                            Rate: { stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0" } / day
+                        Prize Pool: 
+                        <div>
+                            {lotteryBalance ? lotteryBalance : "0"} PMKN
+                        </div>
                     </Circle>
                 </BottomBanner>
             </Banner>

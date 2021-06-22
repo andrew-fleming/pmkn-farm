@@ -15,6 +15,8 @@ export const UserContext = React.createContext({
     setPmknYield: () => {},
     pmknUnrealizedYield: "",
     setPmknUnrealizedYield: () => {},
+    userNFTs: "",
+    setUserNFTs: () => {},
 })
 
 export const UserProvider = UserContext.Provider

@@ -12,7 +12,11 @@ export const mainConfig: DeployParams = [
 ]
 
 export const lottoConfig: LotteryParams = [
+<<<<<<< HEAD
     "0xa36085F69e2889c224210F603D836748e7dC0088", // Link address
+=======
+    "0xa36085F69e2889c224210F603D836748e7dC0088", // Link address again !!! FIX ME
+>>>>>>> 75a933cf62cb1ca82fde8b3c63360905a43f5d10
     "0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9", // Coordinator
     "0xa36085F69e2889c224210F603D836748e7dC0088", // LINK address
     ethers.utils.parseEther(".1"), // VRF price
