@@ -1,4 +1,7 @@
 # Pmkn Farm
+
+<img width="1367" alt="Screen Shot 2021-06-22 at 12 27 31 PM" src="https://user-images.githubusercontent.com/69282788/122964969-cd00e180-d355-11eb-899a-21e59c621ed4.png">
+
 This repository provides a DAI staking mechanism; whereby, the user receives PmknToken as a reward for staking DAI in the contract. Further, the user can purchase a JACK NFT through the NFT factory named JackOLantern. The PmknTokens are sent to a lottery pool inside the Lottery contract. Finally, each NFT includes a tokenId which acts as a lottery ticket. The lottery feature uses Chainlink's VRF to provide a verifiably random number. The winner receives the contents of the lottery pool. 
 
 ## Prerequisites
