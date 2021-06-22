@@ -80,8 +80,6 @@ const Circle = styled.button`
 `;
 
 export default function NFTBox() {
-
-
     
     return(
         <Container>

@@ -115,20 +115,16 @@ export default function StakeBox() {
                     </div>
                 </TopBanner>
             </Banner>
-        
             <div>
                 <ClaimButton onClick={withdrawYield}>
                     Claim
                 </ClaimButton>
-                
             </div>
             <Banner>
                 <BottomBanner>
-
                     <Circle>
                             Rate: { stakingBalance ? ethers.utils.formatEther(stakingBalance) : "0" } / day
                     </Circle>
-
                 </BottomBanner>
             </Banner>
         </Box>

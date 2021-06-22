@@ -83,11 +83,11 @@ export default function LotteryModal() {
     } = useUser();
 
     const {
-        setIsNFTOpen,
         provider,
         pmknFarmContract,
         pmknTokenContract,
-        lotteryContract
+        lotteryContract,
+        setIsNFTOpen
     } = useContract();
 
     function closeModal() {
@@ -114,24 +114,22 @@ export default function LotteryModal() {
     
 
 return(
-    
     <>
         <div style={OverlayStyle} onClick={closeModal}/>
         <div style={ModalStyle}>
             <Container>
-                        <H1>Mint NFT</H1>
-                        <DivBody>
-                            <Img src={URI} alt="display image"/>
-                        </DivBody>
-                        <BottomDiv>
-                            <MintButton onClick={mintJack}>
-                                Mint JACK NFT
-                            </MintButton>
-                        </BottomDiv>
+                    <H1>Mint NFT</H1>
+                    <DivBody>
+                        <Img src={URI} alt="display image"/>
+                    </DivBody>
+                    <BottomDiv>
+                        <MintButton onClick={mintJack}>
+                            Mint JACK NFT
+                        </MintButton>
+                    </BottomDiv>
                         
             </Container>
         </div>
-        
     </>
     )
 }

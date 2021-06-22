@@ -89,11 +89,11 @@ export default function OwnerModal() {
     const [ transferAmount, setTransferAmount ] = useState("");
 
     const {
-        setIsOwnerOpen,
         linkBalance,
         provider,
         lotteryContract,
-        linkContract
+        linkContract,
+        setIsOwnerOpen
     } = useContract();
 
     const closeModal = () => {
@@ -164,7 +164,6 @@ return(
                 </BottomDiv>
             </Container>
         </div>
-        
     </>
     )
 }

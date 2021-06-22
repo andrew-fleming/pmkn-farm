@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useContract } from "../context/ContractContext"; 
-
 import NavBar from "./NavBar";
 import MainCard from "./MainCard";
 import LotteryModal from "./LotteryModal";
 import NFTModal from "./NFTModal"
 import OwnerModal from "./OwnerModal"
+
+import { useContract } from "../context/ContractContext"; 
 
 
 const Container = styled.div`
@@ -23,8 +23,6 @@ export default function Main() {
         isNFTOpen,
         isOwnerOpen
     } = useContract();
-
-    
 
     
     return(

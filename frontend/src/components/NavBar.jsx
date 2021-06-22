@@ -102,10 +102,6 @@ export default function NavBar() {
     } = useUser();
 
     const {
-        setIsLotteryOpen,
-        setIsNFTOpen,
-        setIsOwnerOpen,
-        setWinningNumber,
         networkId,
         isLotteryOpen,
         isNFTOpen,
@@ -113,13 +109,17 @@ export default function NavBar() {
         lotteryContract,
         lotteryCount,
         jackContract,
-        owner
+        owner,
+        setIsLotteryOpen,
+        setIsNFTOpen,
+        setIsOwnerOpen,
+        setWinningNumber
     } = useContract();
 
     /**
      * @notice Fetch functions for the lottery
      */
-
+    
     const loadWinningNumber = useCallback(async() => {
         let number = await lotteryContract.winningNumber(lotteryCount - 1)
         setWinningNumber(number.toString())

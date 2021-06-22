@@ -136,10 +136,8 @@ return(
                             Claim Winnings
                         </ClaimButton>
                         </BottomDiv>
-                        
             </Container>
         </div>
-        
     </>
     )
 }

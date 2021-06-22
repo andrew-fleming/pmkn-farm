@@ -1,7 +1,6 @@
 import React from "react"
 import styled from "styled-components";
 
-//import { useUser } from "../context/UserContext"
 import { useContract } from "../context/ContractContext"
 
 const Container = styled.div`
