@@ -111,7 +111,7 @@ contract Lottery is Ownable, VRFConsumerBase {
     ///         winning lottery number
     /// @dev This function fetches the amount of JACK NFTs held by the user. Then, the
     ///      logic iterates the tokenIds and returns true if the tokenId matches the 
-    ///      winning number
+    ///      winning number. The unchecked keyword wraps the for loop to save gas.
     /// @param user The address of the user
     function validateWinner(
         address user 
@@ -120,9 +120,11 @@ contract Lottery is Ownable, VRFConsumerBase {
         {
         uint256 totalNfts = jackOLantern.balanceOf(user);
         uint256 winNum = winningNumber[lotteryCount - 1];
-        for(uint256 i; i < totalNfts; i++){
-            if(jackOLantern.tokenOfOwnerByIndex(user, i) == winNum){
-                return true;
+        unchecked {
+            for(uint256 i; i < totalNfts; i++){
+                if(jackOLantern.tokenOfOwnerByIndex(user, i) == winNum){
+                    return true;
+                }
             }
         }
     }
