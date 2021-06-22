@@ -5,13 +5,56 @@ This repository provides a DAI staking mechanism; whereby, the user receives Pmk
 ```
 NodeJS and NPM >= 7.5.0
 ```
-
+***
 ## Installation
 In directory root:
 ```
 npm i
 ```
+***
+## Testing
+```
+npx hardhat test
+```
+***
+## Deployment
+### Prerequisites
+This dApp accepts DAI as its staking token; therefore, you'll need to acquire Kovan DAI if you deploy to Kovan (as it's preconfigured). To attain kDAI, you'll need to lock kETH in a Maker vault in exchange for kDAI.
+* Network Provider
+    * Infura.io
+    * Alchemy.com
+* MetaMask 
+    * MetaMask.io
+* Kovan DAI 
+    * https://oasis.app/borrow?network=kovan
+* Kovan LINK
+    * https://kovan.chain.link/
 
+The Hardhat configuration file and scripts have been set up to deploy on the Kovan testnet. Use the .env_sample as a template for the requisite API_KEY and PRIVATE_KEY. Infura and Alchemy offer free API access to testnets and mainnet. Once you have an API endpoint and your private key from MetaMask, create a dotenv file within the PmknFarm root:
+
+```
+touch .env
+```
+Populate the .env with your API_KEY and PRIVATE_KEY. 
+<br>
+_*If you're posting on GitHub, DO NOT FORGET to .gitignore the dotenv(.env) file!_
+<br>
+<br>
+Uncomment out the Kovan network details in hardhat.config.ts:
+```
+networks: {
+    kovan: {
+        gas: "auto",
+        gasPrice: "auto",
+        url: process.env.API_KEY,
+        accounts: [`0x${process.env.PRIVATE_KEY}`]
+    }
+  }
+```
+In the PmknFarm root, run:
+```
+npx hardhat run scripts/deployFarm.ts --network kovan
+```
 
 
 
