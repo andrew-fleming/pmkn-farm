@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/pmkn-farm/static/css/main.6dea0f05.chunk.css",
+    "main.js": "/pmkn-farm/static/js/main.9c48fcd7.chunk.js",
+    "main.js.map": "/pmkn-farm/static/js/main.9c48fcd7.chunk.js.map",
+    "runtime-main.js": "/pmkn-farm/static/js/runtime-main.f6974e37.js",
+    "runtime-main.js.map": "/pmkn-farm/static/js/runtime-main.f6974e37.js.map",
+    "static/js/2.fc7cced3.chunk.js": "/pmkn-farm/static/js/2.fc7cced3.chunk.js",
+    "static/js/2.fc7cced3.chunk.js.map": "/pmkn-farm/static/js/2.fc7cced3.chunk.js.map",
+    "static/js/3.305bce3e.chunk.js": "/pmkn-farm/static/js/3.305bce3e.chunk.js",
+    "static/js/3.305bce3e.chunk.js.map": "/pmkn-farm/static/js/3.305bce3e.chunk.js.map",
+    "index.html": "/pmkn-farm/index.html",
+    "static/css/main.6dea0f05.chunk.css.map": "/pmkn-farm/static/css/main.6dea0f05.chunk.css.map",
+    "static/js/2.fc7cced3.chunk.js.LICENSE.txt": "/pmkn-farm/static/js/2.fc7cced3.chunk.js.LICENSE.txt",
+    "static/media/Mark_Dai.cac848e2.svg": "/pmkn-farm/static/media/Mark_Dai.cac848e2.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f6974e37.js",
+    "static/js/2.fc7cced3.chunk.js",
+    "static/css/main.6dea0f05.chunk.css",
+    "static/js/main.9c48fcd7.chunk.js"
+  ]
+}
