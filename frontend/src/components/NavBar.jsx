@@ -180,7 +180,7 @@ export default function NavBar() {
     return(
             <MetaContainer>
                 <Container>
-                    <Title>Pumpkin Farm</Title>
+                    <Title>Pmkn Farm</Title>
                     <SubContainer>
                         {isOwner ? ownerComponent : null}
                         <NFTButton onClick={handleNFT}>
