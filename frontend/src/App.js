@@ -120,37 +120,37 @@ function App() {
     }, [setProvider])
 
     const loadDaiContract = useCallback(async(_provider) => {
-        let daiAddress = "DAI_CONTRACT_HERE" 
+        let daiAddress = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa" 
         let contract = new ethers.Contract(daiAddress, ERC20.abi, _provider)
         setDaiContract(contract)
     }, [setDaiContract])
     
     const loadLinkContract = useCallback(async(_provider) => {
-        let linkAddress = "LINK_CONTRACT_HERE"
+        let linkAddress = "0xa36085F69e2889c224210F603D836748e7dC0088"
         let contract = new ethers.Contract(linkAddress, ERC20.abi, _provider)
         setLinkContract(contract)
     }, [setLinkContract])
 
     const loadPmknToken = useCallback(async(_provider) => {
-        let pmknTokenAddress = "PMKNTOKEN_CONTRACT_HERE" 
+        let pmknTokenAddress = "0x3A65Dc61Eb447F47DDaAfdb45B3CBE8A63490848" 
         let contract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, _provider)
         setPmknTokenContract(contract)
     }, [setPmknTokenContract])
 
     const loadPmknFarmContract = useCallback(async(_provider) => {
-        let pmknFarmAddress = "PMKNFARM_CONTRACT_HERE"
+        let pmknFarmAddress = "0x5eBC05F4A82a462886e908AbdC1BEfFf7C342740"
         let contract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, _provider)
         setPmknFarmContract(contract)
     }, [setPmknFarmContract])
 
     const loadJackContract = useCallback(async(_provider) => {
-        let jackContractAddress = "JACKOLANTER_CONTRACT_HERE"
+        let jackContractAddress = "0x79A54C230c7CCADB2765615c0aa7a74e34EA33BB"
         let contract = new ethers.Contract(jackContractAddress, JackOLantern.abi, _provider)
         setJackContract(contract)
     }, [setJackContract])
 
     const loadLotteryContract = useCallback(async(_provider) => {
-        let lotteryContractAddress = "LOTTERY_CONTRACT_HERE"
+        let lotteryContractAddress = "0x3845bF1e6420c3E47A8831F925BbC03911035BB6"
         let contract = new ethers.Contract(lotteryContractAddress, Lottery.abi, _provider)
         setLotteryContract(contract)
     }, [setLotteryContract])
