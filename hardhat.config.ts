@@ -16,11 +16,11 @@ export default {
     }
   },
   networks: {
-    //kovan: {
-    //    gas: "auto",
-    //    gasPrice: "auto",
-    //    url: process.env.API_KEY,
-    //    accounts: [`0x${process.env.PRIVATE_KEY}`]
-    //}
+    kovan: {
+        gas: "auto",
+        gasPrice: "auto",
+        url: process.env.API_KEY,
+        accounts: [`0x${process.env.PRIVATE_KEY}`]
+    }
   }
 }

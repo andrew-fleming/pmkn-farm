@@ -120,37 +120,38 @@ function App() {
     }, [setProvider])
 
     const loadDaiContract = useCallback(async(_provider) => {
-        let daiAddress = "DAI_CONTRACT_HERE" 
+        let daiAddress = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa" 
         let contract = new ethers.Contract(daiAddress, ERC20.abi, _provider)
         setDaiContract(contract)
     }, [setDaiContract])
     
     const loadLinkContract = useCallback(async(_provider) => {
-        let linkAddress = "LINK_CONTRACT_HERE"
+        let linkAddress = "0xa36085F69e2889c224210F603D836748e7dC0088"
         let contract = new ethers.Contract(linkAddress, ERC20.abi, _provider)
         setLinkContract(contract)
     }, [setLinkContract])
 
     const loadPmknToken = useCallback(async(_provider) => {
-        let pmknTokenAddress = "PMKNTOKEN_CONTRACT_HERE" 
+        let pmknTokenAddress = PmknToken["networks"]["42"]["address"] 
         let contract = new ethers.Contract(pmknTokenAddress, PmknToken.abi, _provider)
         setPmknTokenContract(contract)
     }, [setPmknTokenContract])
 
     const loadPmknFarmContract = useCallback(async(_provider) => {
-        let pmknFarmAddress = "PMKNFARM_CONTRACT_HERE"
+        let pmknFarmAddress = PmknFarm["networks"]["42"]["address"]
         let contract = new ethers.Contract(pmknFarmAddress, PmknFarm.abi, _provider)
         setPmknFarmContract(contract)
     }, [setPmknFarmContract])
 
     const loadJackContract = useCallback(async(_provider) => {
-        let jackContractAddress = "JACKOLANTER_CONTRACT_HERE"
+        let jackContractAddress = JackOLantern["networks"]["42"]["address"]
         let contract = new ethers.Contract(jackContractAddress, JackOLantern.abi, _provider)
         setJackContract(contract)
     }, [setJackContract])
 
     const loadLotteryContract = useCallback(async(_provider) => {
-        let lotteryContractAddress = "LOTTERY_CONTRACT_HERE"
+        let lotteryContractAddress = Lottery["networks"]["42"]["address"]
+        console.log("Lottery: ", lotteryContractAddress)
         let contract = new ethers.Contract(lotteryContractAddress, Lottery.abi, _provider)
         setLotteryContract(contract)
     }, [setLotteryContract])
