@@ -272,7 +272,6 @@ describe("Start from deployment for time increase", () => {
 
             expect(expected)
                 .to.eq(formatRes)
-   
         })
 
         it("should update yield balance when unstaked", async() => {
@@ -282,6 +281,17 @@ describe("Start from deployment for time increase", () => {
             res = await pmknFarm.pmknBalance(alice.address)
             expect(Number(ethers.utils.formatEther(res)))
                 .to.be.approximately(10, .001)
+        })
+
+        /** BUG */
+        it("should return correct yield when partially unstake", async() => {
+            await time.increase(86400)
+            await pmknFarm.unstake(ethers.utils.parseEther("5"))
+            await time.increase(86400)
+            await pmknFarm.withdrawYield()
+            res = await pmknToken.balanceOf(alice.address)
+            expect(Number(ethers.utils.formatEther(res)))
+                .to.be.approximately(15, .001)
         })
     })
 

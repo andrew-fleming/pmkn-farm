@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PmknToken.sol";
@@ -87,6 +87,7 @@ contract PmknFarm {
             "Nothing to unstake"
         );
         uint256 yieldTransfer = calculateYieldTotal(msg.sender);
+        startTime[msg.sender] = block.timestamp;
         uint256 balTransfer = amount;
         amount = 0;
         stakingBalance[msg.sender] -= balTransfer;
