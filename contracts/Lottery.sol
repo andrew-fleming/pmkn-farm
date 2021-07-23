@@ -3,7 +3,6 @@ pragma solidity 0.8.4;
 
 import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./JackOLantern.sol";
 import "./PmknToken.sol";
